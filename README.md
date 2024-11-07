@@ -24,23 +24,7 @@
 <br>  
 <br>  
 <br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
+<br>    
 
 ## Alertstack - Alert, Metric and Rule Creation and testing
 
