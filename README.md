@@ -53,8 +53,6 @@ This `test environment` described here is a standin environment representation w
 
 <div style="page-break-after: always"></div>
 
-**A typical development workflow**  
-
    ```mermaid
    graph TD
     E[Merge to Main] --> |New Work| A["<b>Code Development</b>"]
