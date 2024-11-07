@@ -51,7 +51,8 @@ Typically in different environments, like staging and production, the [Alert Rul
 ### Objective 
 This `test environment` described here is a standin environment representation we can use to validate any major new work/definitions or modification to our existing Alerts/Rules/Receivers. So, remembering that these observability resources are implemented as yaml files and configs, they will be managed via GitOps and deployed to an environment to test properly, just like code - for example. 
 
-**A typical development workflow**
+**A typical development workflow**  
+
    ```mermaid
    graph TD
     E[Merge to Main] --> |New Work| A["<b>Code Development</b>"]
