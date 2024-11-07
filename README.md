@@ -44,11 +44,9 @@
 
 ## Alertstack - Alert, Metric and Rule Creation and testing
 
-This mini project creates a fully self contained Observability Stack locally on your machine. The main purpose is to provide an isolated environment to aid development and testing of rules, alerts and configs that make use of [Prometheus](https://prometheus.io/), [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/) and [Grafana](https://grafana.com/).
-
+This mini project creates a fully self contained Observability Stack locally on your machine. The main purpose is to provide an isolated environment to aid development and testing of rules, alerts and configs that make use of [Prometheus](https://prometheus.io/), [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/) and [Grafana](https://grafana.com/).  
 Typically in different environments, like staging and production, the [Alert Rules](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/), [Groups](https://prometheus.io/docs/alerting/latest/alertmanager/#grouping), [Routes](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) and [Receivers](https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/) are all tightly coupled in a handful of files. These rules/configs can be of different vintages and would cover numerous old and new services.  It is not uncommon for there to be a wide range of styles apparent in the Alert/Rules definitions that have been developed over the years.
 
-### Objective 
 This `test environment` described here is a standin environment representation we can use to validate any major new work/definitions or modification to our existing Alerts/Rules/Receivers. So, remembering that these observability resources are implemented as yaml files and configs, they will be managed via GitOps and deployed to an environment to test properly, just like actual code. 
 
 <div style="page-break-after: always"></div>
