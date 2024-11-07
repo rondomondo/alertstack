@@ -49,36 +49,9 @@ Typically in different environments, like staging and production, the [Alert Rul
 
 This `test environment` described here is a standin environment representation we can use to validate any major new work/definitions or modification to our existing Alerts/Rules/Receivers. So, remembering that these observability resources are implemented as yaml files and configs, they will be managed via GitOps and deployed to an environment to test properly, just like actual code. 
 
-<div style="page-break-after: always"></div>
+![](assets/git-workflow-mermaid.png)
 
-   ```mermaid
-   graph TD
-    E[Merge to Main] --> |New Work| A["<b>Code Development</b>"]
-    A --> B[Create PR]
-    B --> C{PR Review}
-    C -->|Deny| A
-    C -->|Approve| D[Run Tests]
-    D -->|Fail| A
-    D -->|Pass| E
-    E --> F[ArgoCD Detects]
-    F --> G[ArgoCD Syncs]
-    G --> K[Deploy to Dev]
-    K --> L{Dev Tests}
-    L -->|Fail| J
-    L -->|Pass| M[Deploy to Staging]
-    M --> N{Stage Tests}
-    N -->|Success| I[Live]
-    N -->|Failure| J[Rollback]
-    J --> F
-    
-    style A fill:#E1F5FE,stroke:#1976D2,stroke-width:4px
-    style E fill:#B3E5FC
-    style I fill:#81D4FA
-    style J fill:#FFCDD2
-    style K fill:#E1BEE7
-    style M fill:#E1BEE7
-   ```
-<br>
+
 
 By using this standalone `alertstack` environment we can add/modify the observability resources locally, and allow real testing of syntax and correctness  _without_ having to go thru many cycles of develop, merge, deploy, test, fix iterations to staging git first, as described above.  
 
