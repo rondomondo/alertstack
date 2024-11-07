@@ -13,7 +13,7 @@ This `test environment` described here is a standin environment representation w
 **A typical development workflow**
    ```mermaid
    graph TD
-    E[Merge to Main] --> |New Cycle| A["<b>Code Development</b>"]
+    E[Merge to Main] --> |New Work| A["<b>Code Development</b>"]
     A --> B[Create PR]
     B --> C{PR Review}
     C -->|Deny| A
