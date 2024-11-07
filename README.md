@@ -51,12 +51,7 @@ This `test environment` described here is a standin environment representation w
 
 ![](assets/git-workflow-mermaid.png)
 
-
-
 By using this standalone `alertstack` environment we can add/modify the observability resources locally, and allow real testing of syntax and correctness  _without_ having to go thru many cycles of develop, merge, deploy, test, fix iterations to staging git first, as described above.  
-
-<hr>
-
 
 Below I detail four distinct componants that comprise this alertstack project. These components run via [docker-compose] using the relevent containers.
 
@@ -94,8 +89,6 @@ I want to encourage standardisation of the actual alerting and action display te
   + Automate insertion of Runbook, Logs, Grafana, Dashboard links with sensible fallbacks for default.
   + Reduce the amount of prior knowledge a responder needs to know to address alerted issues. Achieved through the insertion all the relevant key information in the output formats. Like back links to Prometheus, Grafana, Alertmanager, Logs etc. 
   + Faster mean time to repair [mttr] for incidents (also mean time to mitigate [mttm]).
-
-<br>
 
 
 # Quickstart
