@@ -8,7 +8,7 @@ Typically in different environments, like staging and production, the [Alert Rul
 This project effort outlines some ways to remove some of the inconsistancies current and ensure new differences do not creep in later.
 
 ### Objective 
-This `test environment` described here is a [step 1] we can use to validate any major new work/definitions or modification to our existing Alerts/Rules/Receivers. So, remembering that these observability resources are implemented as yaml files and configs, they will be managed via GitOps and deployed to an environment to test properly, just like code - for example. 
+This `test environment` described here is a standin environment representation we can use to validate any major new work/definitions or modification to our existing Alerts/Rules/Receivers. So, remembering that these observability resources are implemented as yaml files and configs, they will be managed via GitOps and deployed to an environment to test properly, just like code - for example. 
 
 **A typical development workflow**
    ```mermaid
