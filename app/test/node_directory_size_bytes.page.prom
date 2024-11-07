@@ -1,0 +1,1 @@
+node_directory_size_bytes{path="/tmp/kafka_upload", style="2", severity="critical" } 125005

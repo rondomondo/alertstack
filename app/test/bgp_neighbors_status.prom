@@ -1,0 +1,3 @@
+#
+bgp_neighbors_status{alertname="BGP_down", cluster="eu-data", deployment="default1", style="2", instance="i-service.syd", job="default1TargetsWithAuth", network_region="APAC", peer_asn="1234", peer_ip="128.166.10.1", peer_name="SYD-DAVE", peer_type="Pipe", pop="syd", region="eu-central-1-data", pd_group="noc", servergroup="default", severity="critical"} 5
+

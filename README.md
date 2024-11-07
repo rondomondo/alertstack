@@ -40,12 +40,12 @@ This `test environment` described here is a standin environment representation w
    ```
 <br>
 
-By using this standalone `alertstack` environment we can add/modify the observability resources locally , and allow real testing of syntax and correctness  _without_ having to go thru many cycles of develop, merge, deploy, test, fix iterations to staging git first, as described above.  
+By using this standalone `alertstack` environment we can add/modify the observability resources locally, and allow real testing of syntax and correctness  _without_ having to go thru many cycles of develop, merge, deploy, test, fix iterations to staging git first, as described above.  
 
 <hr>
 
 
-Below I detail four distinct componants that comprise this alertstack project. These components run via docker compose using the relevent containers.
+Below I detail four distinct componants that comprise this alertstack project. These components run via [docker-compose] using the relevent containers.
 
 As well as [Prometheus](https://prometheus.io/), [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/) and [Grafana](https://grafana.com/) you will see something called [`pingpong`](app/pingpong.go).  
 
@@ -576,6 +576,8 @@ promtool check rules alerts/alerts_configuration/**/*
 [openmetrics]: https://openmetrics.io/
 
 [prom2json]: https://github.com/prometheus/prom2json
+
+[docker-compose]: https://docs.docker.com/compose/
 
 [mttr]: https://sre.google/workbook/how-sre-relates/#move-fast-by-reducing-the-cost-of-failure
 
