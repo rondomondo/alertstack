@@ -518,13 +518,13 @@ groups:
   - name: BGP_down
     rules:
       - alert: BGP_down
-        expr: bgp_neighbors_status == 6
+        expr: bgp_neighbors_status == 2
         for: 30s
         labels:
           severity: critical
           extra_slack_recepient: "#alert-receiver-sre" 
           pagerduty_group: sre
-          servicenow_group: sre-sg
+          servicenow_group: sre-sn
           runbook_url: "https://alertstack.io/runbook/ALERT:isp_failure+-+BGP+Down"
         annotations:
           summary: "bgp peer failed"
@@ -555,7 +555,7 @@ groups:
 
 ## Some other useful tools and utilities for this type of thing
 
-### amtool - alertmanager tool
+### [amtool] - alertmanager tool
 ```bash
 amtool --alertmanager.url=http://alertstack.io:9093/ config show
 
@@ -563,11 +563,11 @@ amtool --alertmanager.url=http://alertstack.io:9093/ config show
 amtool --alertmanager.url=http://alertstack.io:9093/ config routes
 
 # test some routes with labels
-amtool --verbose config routes test --config.file=alertmanager/alertmanager.yml  severity=warning extra_slack_recipient_test="#alert-receiver"
+amtool --verbose config routes test --config.file=alertmanager/alertmanager.yml  severity=warning extra_slack_recipient_test="#alert-receiver-sre"
 
 # validate rules syntaxes 
-cd prometheus-alerts-config-k8s
-promtool check rules alerts/alerts_cfg/**/*
+cd abcdef-alerts-staging-config
+promtool check rules alerts/alerts_configuration/**/*
 ```
 
 
@@ -580,3 +580,26 @@ promtool check rules alerts/alerts_cfg/**/*
 [mttr]: https://sre.google/workbook/how-sre-relates/#move-fast-by-reducing-the-cost-of-failure
 
 [mttm]: https://static.googleusercontent.com/media/sre.google/en//static/pdf/IncidentMeticsInSre.pdf
+
+[amtool]: https://github.com/prometheus/alertmanager?tab=readme-ov-file#amtool
+
+## Useful links and resources
+
+[promtool](https://prometheus.io/docs/prometheus/latest/installation/)
+
+[amtool](https://github.com/prometheus/alertmanager?tab=readme-ov-file#amtool)
+
+[jq](https://jqlang.github.io/jq/download/)&nbsp;&nbsp;&nbsp; [yq](https://mikefarah.gitbook.io/yq)
+
+[prom2json](https://github.com/prometheus/prom2json)
+
+[SRE Glossary](https://sre.google/workbook/index/)
+
+[SRE Booklist](https://sre.google/books/)
+
+[SRE at Google](https://sre.google/sre-book/table-of-contents/)
+
+[Incident Metrics in Google](https://sre.google/resources/practices-and-processes/incident-metrics-in-sre/)
+
+[SRE Workbook](https://research.google/pubs/the-site-reliability-workbook/)&nbsp;&nbsp;&nbsp;[SRE Workbook](https://sre.google/workbook/table-of-contents/)
+
