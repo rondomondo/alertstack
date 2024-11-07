@@ -1,31 +1,3 @@
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>  
-<br>    
-
 ## Alertstack - Alert, Metric and Rule Creation and testing
 
 This mini project creates a fully self contained Observability Stack locally on your machine. The main purpose is to provide an isolated environment to aid development and testing of rules, alerts and configs that make use of [Prometheus](https://prometheus.io/), [Alertmanager](https://prometheus.io/docs/alerting/latest/alertmanager/) and [Grafana](https://grafana.com/).  
