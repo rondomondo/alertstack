@@ -2,6 +2,9 @@
 
 #set -euo pipefail
 
+
+
+
 # ANSI color codes
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
@@ -22,6 +25,12 @@ function logf() {
     local l=$1
     printf "${l}\n"
 }
+
+
+logfg "\nin /etc/hosts set alertstack.io to 127.0.0.1"
+
+logfg "\ncreating some test ssl certs"
+./generate-cert.sh
 
 # Constants
 readonly ALERTSTACK_HTTP="http://alertstack.io:8090"
