@@ -1,0 +1,3 @@
+bgp_neighbors_status_test{alertname="BGP_down", cluster="eu-data", deployment="default", extra_slack_recipient_sre="#alert-receiver", instance="i-service.syd", job="defaultTargetsWithAuth", network_region="APAC", peer_asn="1234", peer_ip="124.123.1.1", peer_name="SYD-DAVE", peer_type="Pipe", pop="syd", receiver="pagerduty-receiver-sre", region="eu-central-1-data", servergroup="default", severity="critical"} 0
+front_office{oid="1.0.1.2",dave="cool",really="no"} 4
+front_office_disk_space{front_office_open="0"} 42

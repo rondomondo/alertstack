@@ -1,0 +1,1 @@
+node_directory_size_bytes{path="/tmp/lb_proxy_overflow", style="2", severity="critical" } 1250005

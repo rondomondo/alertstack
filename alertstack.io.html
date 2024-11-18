@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title></title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 32px;
+            text-align: center;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #domain, #title {/**/}
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+    <div id="domain"></div>
+    <script>
+        document.getElementById('domain').textContent = window.location.hostname;
+        document.title = window.location.hostname;
+
+
+        const maxTouchPoints = () => {
+            try {
+                return window.navigator.maxTouchPoints;
+            } catch (e) {
+                return 0;
+            }
+        };
+
+        const attachDoubleClickListener = (divId, callback) => {
+            const divElement = document.getElementById(divId);
+            if (!divElement) {
+                console.error(`div with ID ${divId} not found.`);
+                return;
+            }
+        
+            divElement.addEventListener('dblclick', (event) => {
+                window.location.href = callback();
+            });
+        };
+        
+
+
+        function attachDoubleTapListener(divId, callback, doubleTapDelay = 300) {
+            let lastTap = 0;
+            let tapCount = 0;
+            let timeout;
+        
+            if (maxTouchPoints() == 0) {
+                console.log('attachDoubleTapListener no touch points');
+                return;
+            }
+        
+            const divElement = document.getElementById(divId);
+            if (!divElement) {
+                console.error(`div with ID ${divId} not found.`);
+                return;
+            }
+        
+            function resetTaps() {
+                tapCount = 0;
+                clearTimeout(timeout);
+            }
+        
+            divElement.addEventListener(
+                'touchend',
+                function (event) {
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    if (tapLength < doubleTapDelay && tapLength > 0) {
+                        tapCount++;
+                        if (tapCount === 2) {
+                            resetTaps();
+                            window.location.href = callback();
+                            return;
+                        }
+                    } else {
+                        tapCount = 1;
+                    }
+        
+                    lastTap = currentTime;
+        
+                    timeout = setTimeout(resetTaps, doubleTapDelay);
+                },
+                false
+            );
+        }
+        
+    try {
+            attachDoubleTapListener('domain', () => 'https://alertstack.io/README');
+            attachDoubleClickListener('domain', () => 'https://alertstack.io/README');
+        }
+     catch (e) {}
+
+    </script>
+
+</body>
+
+</html>
