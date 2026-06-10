@@ -1,0 +1,91 @@
+{{/* GOD Pagerduty template for Alertmanager notificaations */}}
+{{/* This is a v2 Pagerduty Template look.  This output of this looks like the following... */}}
+
+{{/* assets/pagerduty-native.png */}}
+
+{{/* This seperate template is part of an effort to make the look and actionability of our alerts for numerous teams and projects consistant */}}
+{{/* There is also an initial Slack counterpart that looks like the following... */}}
+
+{{/* assets/down/down-slack-desktop.png */}}
+{{/* Using these templates allows for a more consistant definition for the receivers in alertmanager config without needing to change existing code */}}
+
+{{/* start definitions */}}
+
+
+{{/* This is the pagerDuty message subject - i.e. the first line (no icon).  "[FIRING:2] node_filesystem_bytes critical" */}}
+{{ define "pagerduty.god.subject" }}
+[{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]  {{ .GroupLabels.alertname }} - {{ .CommonLabels.severity }}
+{{ end }}
+
+
+{{/* Title == Subject */}}
+{{ define "pagerduty.god.title" }}{{ template "pagerduty.god.subject" . }}{{ end }}
+
+
+{{/* where this alert was triggered from - prometheus */}}
+{{ define "pagerduty.god.generator_url" }}{{ .GeneratorURL }}{{ end }}
+
+{{/* returns the bare url only in the value (field) Annotations.logs_url and if it does not exist returns a default */}}
+{{- define "pagerduty.god.get_logs_url" }}
+{{- if .Annotations.logs_url }}{{ .Annotations.logs_url }}{{ else }}{{ "https://example.com?missing=logs_url" }}{{- end }}
+{{- end}}
+
+{{/* returns the bare url only in the value (field) Annotations.grafana_url and if it does not exist returns a default */}}
+{{- define "pagerduty.god.get_grafana_url" }}
+{{- if .Annotations.grafana_url }}{{ .Annotations.grafana_url }}{{ else }}{{ "https://example.com?missing=grafana_url" }}{{- end }}
+{{- end}}
+
+{{/* returns the bare url only in the value (field) Annotations.dashboard_url and if it does not exist returns a default */}}
+{{- define "pagerduty.god.get_dashboard_url" }}
+{{- if .Annotations.dashboard_url }}{{ .Annotations.dashboard_url }}{{ else }}{{ "https://example.com?missing=dashboard_url" }}{{- end }}
+{{- end}}
+
+{{/* if the field Annotations.runbook_base exists we will create a runbook_url from it + the alertname */}}
+{{/* otherwise if there is a runbool_url field return that and return a default is all are missing */}}
+{{- define "pagerduty.god.get_runbook_url" }}
+{{- if .Annotations.runbook_base }}{{ .Annotations.runbook_base }}{{ .Labels.alertname }}{{ else if .Annotations.runbook_url }}{{ .Annotations.runbook_url }}{{ else }}{{ "https://example.com?missing=runbook_url" }}{{- end }}
+{{- end}}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "pagerduty.god.runbook_url" }}
+    {{- if (or .Annotations.runbook_url .Annotations.runbook_base)  }}*Runbook:*  <{{ template "pagerduty.god.get_runbook_url" . }}|Service Alert Runbook>{{ else }}*Runbook:*  <{{ template "pagerduty.god.get_runbook_url" . }}|No Service Runbook>{{- end }}
+{{- end }}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "pagerduty.god.logs_url" }}
+    {{- if .Annotations.logs_url }}*Logs:*  <{{ template "pagerduty.god.get_logs_url" . }}|{{ "Check Service Logs"}}>{{ else }}*Logs:*  <{{ template "pagerduty.god.get_logs_url" . }}|No Service Logs>{{- end }}
+{{- end }}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "pagerduty.god.dashboard_url" }}
+    {{- if .Annotations.dashboard_url }}{{ template "pagerduty.god.get_dashboard_url" . }}{{- end }}
+{{- end }}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "pagerduty.god.grafana_url" }}
+    {{- if .Annotations.grafana_url }}{{ template "pagerduty.god.get_grafana_url" . }}{{- end }}
+{{- end }}
+
+{{/* this is something like proxy or fwd */}}
+{{- define "pagerduty.god.component" }}
+    {{- if .Labels.pd_group }}{{ .Labels.pd_group }}{{- end }}
+{{- end }}
+
+
+{{/* MAIN MESSAGE - this is the guts of the message... */}}
+{{/* output looks like assets/pagerduty-native.png */}}
+{{ define "pagerduty.god.instances" }}
+{{ range . }}
+{{ "Runbook" }}{{ "\n" }}{{ template "pagerduty.god.get_runbook_url" . }}{{ "\n" }}
+{{ "Grafana" }}{{ "\n" }}{{ template "pagerduty.god.get_grafana_url" . }}{{ "\n" }}
+{{ "Dashboard" }}{{ "\n" }}{{ template "pagerduty.god.get_dashboard_url" . }}{{ "\n" }}
+{{ "Logs" }}{{ "\n" }}{{ template "pagerduty.god.get_logs_url" . }}{{ "\n" }}
+{{ "Source in Prometheus" }}{{ "\n" }}{{ template "pagerduty.god.generator_url" . }}{{ "\n" }}
+{{ end }}
+{{ range . }}Annotations
+{{ range .Annotations.SortedPairs }} - {{ .Name }} = {{ .Value }}
+{{ end }}{{ "\n" }}Labels
+{{ range .Labels.SortedPairs }} - {{ .Name }} = {{ .Value }}
+{{ end }}
+{{ end }}{{ end }}
+

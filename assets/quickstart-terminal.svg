@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 680" width="760" height="680">
+  <defs>
+    <style>
+      text { font-family: 'ui-monospace', 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace; font-size: 12.5px; }
+      .dim  { fill: #636b78; }
+      .out  { fill: #8b949e; }
+      .cmd  { fill: #b5c9f4; }
+      .pmt  { fill: #6a9edd; }
+      .grn  { fill: #3fb950; }
+      .ylw  { fill: #e3b341; }
+      .lnk  { fill: #6a9edd; }
+      .def  { fill: #cdd3de; }
+      .hdr  { fill: #636b78; font-size: 11px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    </style>
+  </defs>
+
+  <!-- background -->
+  <rect width="760" height="680" rx="10" ry="10" fill="#1a1b1e"/>
+
+  <!-- top bar -->
+  <rect width="760" height="36" rx="10" ry="10" fill="#1a1b1e"/>
+  <rect x="0" y="26" width="760" height="10" fill="#1a1b1e"/>
+  <rect x="0" y="10" width="760" height="26" fill="#212226"/>
+  <circle cx="18" cy="18" r="5" fill="#ff5f57"/>
+  <circle cx="34" cy="18" r="5" fill="#febc2e"/>
+  <circle cx="50" cy="18" r="5" fill="#28c840"/>
+  <text x="380" y="23" text-anchor="middle" class="hdr">terminal</text>
+  <line x1="0" y1="36" x2="760" y2="36" stroke="#ffffff" stroke-opacity="0.08" stroke-width="0.5"/>
+
+  <!-- content starts at y=58, line-height=19 -->
+
+  <!-- setopt -->
+  <text x="20" y="60"><tspan class="pmt">$</tspan><tspan class="cmd" dx="6">setopt</tspan><tspan class="def" dx="4">interactivecomments</tspan></text>
+
+  <!-- comment: clone -->
+  <text x="20" y="80" class="dim"># assuming clone done</text>
+
+  <!-- git clone -->
+  <text x="20" y="100"><tspan class="pmt">$</tspan><tspan class="cmd" dx="6">git clone</tspan><tspan class="def" dx="4">git@github.com:rondomondo/alertstack.git &amp;&amp;</tspan><tspan class="cmd" dx="4">cd</tspan><tspan class="def" dx="4">alertstack</tspan></text>
+
+  <!-- comment: cp -->
+  <text x="20" y="120" class="dim"># copy the env template and adjust credentials if desired</text>
+
+  <!-- cp -->
+  <text x="20" y="140"><tspan class="pmt">$</tspan><tspan class="cmd" dx="6">cp</tspan><tspan class="def" dx="4">.env.template .env</tspan></text>
+
+  <!-- comment: make -->
+  <text x="20" y="160" class="dim"># build images, generate a self-signed TLS cert, and start all five services</text>
+
+  <!-- make stack-up -->
+  <text x="20" y="180"><tspan class="pmt">$</tspan><tspan class="cmd" dx="6">make</tspan><tspan class="def" dx="4">stack-up</tspan></text>
+
+  <!-- clone output -->
+  <text x="20" y="202" class="out">Cloning into 'alertstack'...</text>
+  <text x="20" y="220" class="out">remote: Enumerating objects: 122, done.</text>
+  <text x="20" y="238" class="out">remote: Counting objects: 100% (122/122), done.</text>
+  <text x="20" y="256" class="out">remote: Total 122 (delta 20), reused 119 (delta 17), pack-reused 0</text>
+  <text x="20" y="274" class="out">Receiving objects: 100% (122/122), 6.57 MiB | 6.12 MiB/s, done.</text>
+  <text x="20" y="292" class="out">Resolving deltas: 100% (20/20), done.</text>
+
+  <!-- cert output -->
+  <text x="20" y="314" class="out">uv run --extra dev python scripts/gen_cert.py --domain alertstack.org ...</text>
+  <text x="20" y="332" class="out">cert: app/certs/alertstack.org.crt</text>
+  <text x="20" y="350" class="out">key:  app/certs/alertstack.org.key</text>
+  <text x="20" y="368" class="out">Certificate written to app/certs/</text>
+
+  <!-- docker compose -->
+  <text x="20" y="390" class="out">docker compose up --force-recreate --remove-orphans --detach -V</text>
+  <text x="20" y="410" class="def">[+] Running 9/9</text>
+
+  <!-- green ticks -->
+  <text x="20" y="428"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Network alertstack_alertstack          </tspan><tspan class="grn">Created</tspan></text>
+  <text x="20" y="446"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Volume "alertstack_grafana-data"       </tspan><tspan class="grn">Created</tspan></text>
+  <text x="20" y="464"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Volume "alertstack_prom_data"          </tspan><tspan class="grn">Created</tspan></text>
+  <text x="20" y="482"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Volume "alertstack_alertmanager_data"  </tspan><tspan class="grn">Created</tspan></text>
+  <text x="20" y="500"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Container prometheus                   </tspan><tspan class="grn">Healthy</tspan></text>
+  <text x="20" y="518"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Container pingpong                     </tspan><tspan class="grn">Started</tspan></text>
+  <text x="20" y="536"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Container grafana                      </tspan><tspan class="grn">Started</tspan></text>
+  <text x="20" y="554"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Container alertmanager                 </tspan><tspan class="grn">Started</tspan></text>
+  <text x="20" y="572"><tspan class="grn">&#x2714;</tspan><tspan class="def" dx="4">Container frontend-proxy               </tspan><tspan class="grn">Started</tspan></text>
+
+  <!-- stack ready -->
+  <text x="20" y="594" class="ylw" font-weight="600">Stack ready (direct):</text>
+  <text x="20" y="612"><tspan class="out">  Prometheus:   </tspan><tspan class="lnk">http://localhost:9090</tspan></text>
+  <text x="20" y="630"><tspan class="out">  Alertmanager: </tspan><tspan class="lnk">http://localhost:9093</tspan><tspan class="out">   Grafana: </tspan><tspan class="lnk">http://localhost:3000</tspan></text>
+  <text x="20" y="648"><tspan class="out">  pingpong:     </tspan><tspan class="lnk">http://localhost:8090</tspan></text>
+  <text x="20" y="666" class="out">HTTP on :80 redirects to HTTPS on :8443.</text>
+</svg>

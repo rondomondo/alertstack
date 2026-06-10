@@ -1,0 +1,193 @@
+
+{{/* GOD Slack template for Alertmanager notificaations */}}
+{{/* This is a v2 Slack Template look.  This output of this looks like the following... */}}
+
+{{/* down-slack-desktop.png */}}
+
+{{/* This seperate template is part of an effort to make the look and actionability of our alerts for numerous teams and projects consistant */}}
+{{/* There is also an initial Pagerduty counterpart that looks like the following... */}}
+
+{{/* pagerduty-native.png */}}
+{{/* Using these templates allows for a more consistant definition for the receivers in alertmanager config without needing to change existing code */}}
+
+{{/* start definitions */}}
+
+{{/* The Slack message Subject - i.e. the first line with Icon .  	 "[FIRING:2] node_filesystem_bytes critical" */}}
+{{ define "slack.god.subject" }}
+    {{ template "slack.severity.icon" . }}  [{{ .Status | toUpper }}{{ if eq .Status "firing" }}:{{ .Alerts.Firing | len }}{{ end }}]  {{ .GroupLabels.alertname }} - {{ .CommonLabels.severity }} {{ end }}
+
+{{/* Title == Subject */}}
+{{ define "slack.god.title" }}{{ template "slack.god.subject" . }}{{ end }}
+
+
+{{/* The message to display in the alert */}}
+{{ define "slack.god.message" -}}
+    {{ template "__alert_severity" . }}
+    {{- if (index .Alerts 0).Annotations.message }}
+    {{- "\n" -}}
+    *Message:* {{ (index .Alerts 0).Annotations.message }}
+    {{- end }}
+{{- end }}
+
+{{/* In case we need just text fallback */}}
+{{ define "slack.god.fallback" -}}
+    {{- if (index .Alerts 0).Annotations.fallback }}
+    {{ (index .Alerts 0).Annotations.fallback }}
+    {{- end }}
+{{- end }}
+
+
+{{/* returns the bare url only in the value (field) Annotations.logs_url and if it does not exist returns a default */}}
+{{- define "slack.god.get_logs_url" }}
+{{- if .Annotations.logs_url }}{{ .Annotations.logs_url }}{{ else }}{{ "https://example.com?missing=logs_url" }}{{- end }}
+{{- end}}
+
+{{/* returns the bare url only in the value (field) Annotations.grafana_url and if it does not exist returns a default */}}
+{{- define "slack.god.get_grafana_url" }}
+{{- if .Annotations.grafana_url }}{{ .Annotations.grafana_url }}{{ else }}{{ "https://example.com?missing=grafana_url" }}{{- end }}
+{{- end}}
+
+{{/* returns the bare url only in the value (field) Annotations.dashboard_url and if it does not exist returns a default */}}
+{{- define "slack.god.get_dashboard_url" }}
+{{- if .Annotations.dashboard_url }}{{ .Annotations.dashboard_url }}{{ else }}{{ "https://example.com?missing=dashboard_url" }}{{- end }}
+{{- end}}
+
+{{/* if the field Annotations.runbook_base exists we will create a runbook_url from it + the alertname */}}
+{{/* otherwise if there is a runbool_url field return that and return a default is all are missing */}}
+{{- define "slack.god.get_runbook_url" }}
+{{- if .Annotations.runbook_base }}{{ .Annotations.runbook_base }}{{ .Labels.alertname }}{{ else if .Annotations.runbook_url }}{{ .Annotations.runbook_url }}{{ else }}{{ "https://example.com?missing=runbook_url" }}{{- end }}
+{{- end}}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "slack.god.runbook_url" }}
+    {{- if (or .Annotations.runbook_url .Annotations.runbook_base)  }}*Runbook:*  <{{ template "slack.god.get_runbook_url" . }}|Service Alert Runbook>{{ else }}*Runbook:*  <{{ template "slack.god.get_runbook_url" . }}|No Service Runbook>{{- end }}
+{{- end }}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "slack.god.logs_url" }}
+    {{- if .Annotations.logs_url }}*Logs:*  <{{ template "slack.god.get_logs_url" . }}|{{ "Check Service Logs"}}>{{ else }}*Logs:*  <{{ template "slack.god.get_logs_url" . }}|No Service Logs>{{- end }}
+{{- end }}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "slack.god.dashboard_url" }}
+    {{- if .Annotations.dashboard_url }}*Dashboard:*  <{{ template "slack.god.get_dashboard_url" . }}|Service Dashboard>{{ else }}*Dashboard:*  <{{ template "slack.god.get_dashboard_url" . }}|No Service Dashboard>{{- end }}
+{{- end }}
+
+{{/* wrap up the field output for a consistant look and formatting */}}
+{{- define "slack.god.grafana_url" }}
+    {{- if .Annotations.grafana_url }}*Grafana:*  <{{ template "slack.god.get_grafana_url" . }}|Service info in Grafana>{{ else }}*Grafana:*  <{{ template "slack.god.get_grafana_url" . }}|No Grafana Info>{{- end }}
+{{- end }}
+
+
+{{/* utility wrapper for the usual prettfied print loop of labels and annotations */}}
+{{/* runbook_url is already output so skip over */}}
+{{- define "slack.god.print_labels" }}
+*Labels*
+    {{- "\n" -}}
+    {{- range .Labels.SortedPairs -}}
+        {{- if ne .Name "runbook_url" -}} • *{{ .Name }}:* `{{ .Value }}`{{- "\n" -}}{{- end -}}
+    {{- end -}}  
+{{- end}}
+
+{{- define "slack.god.print_annotations" }}
+*Annotations*
+    {{- "\n" -}}
+    {{- range .Annotations.SortedPairs -}}
+        {{- if ne .Name "runbook_url" -}} • *{{ .Name }}:* `{{ .Value }}`{{- "\n" -}}{{- end -}}
+    {{- end -}}  
+{{- end}}
+
+{{/* The default team footer to display in the alert */}}
+{{ define "slack.god.footer" -}}
+god@alertstack.io
+{{- end }}
+
+
+{{/* MAIN MESSAGE - this is the guts of the message... */}}
+{{/* output looks like down-slack-desktop.png */}}
+{{ define "slack.god.text" -}}
+{{ range $index, $alert := .Alerts }}
+    {{- if $alert.Labels.alertname }}
+    {{- "\n" -}}
+    *Alert:* {{ $alert.Labels.alertname }}
+    {{- end }}
+
+    {{- if $alert.Labels.severity }}
+    {{- "\n" -}}
+    *Severity:* `{{ $alert.Labels.severity }}`
+    {{- end }}
+
+    {{- "\n" -}}
+
+    {{- if $alert.Annotations.summary }}
+    {{- "\n" -}}
+    {{ $alert.Annotations.summary }}
+    {{- "\n" -}}
+    {{- end }}
+
+    {{- if $alert.Annotations.description }}
+    {{- "\n" -}}
+    {{ $alert.Annotations.description }}
+    {{- "\n" -}}
+    {{- end }}
+
+
+    {{- "\n" -}}
+    {{ template "slack.god.logs_url" $alert }}
+
+    {{- "\n" -}}
+    {{ template "slack.god.dashboard_url" $alert }}
+
+    {{- "\n" -}}
+    {{ template "slack.god.grafana_url" $alert }}
+
+    {{- "\n" -}}
+    {{ template "slack.god.runbook_url" $alert }}
+
+    {{- "\n" -}}
+    {{ template "slack.god.print_labels" $alert }}
+
+    {{- "\n" -}}
+    {{ template "slack.god.print_annotations" $alert }}
+
+{{ end }}
+{{ end }}
+
+
+{{/* Color of the Slack 'attachment' (appears as vertical line next to alert; green|red|orange etc) */}}
+{{ define "slack.god.color" -}}
+    {{ if eq .Status "firing" -}}
+        {{ if eq .CommonLabels.severity "warning" -}}
+            warning
+        {{- else if eq .CommonLabels.severity "critical" -}}
+            danger
+        {{- else if eq .CommonLabels.severity "page" -}}
+            danger
+        {{- else -}}
+            #439FE0
+        {{- end -}}
+    {{ else -}}
+    good
+    {{- end }}
+{{- end }}
+
+{{/* Severity of the alert */}}
+{{ define "__alert_severity" -}}
+    {{- if eq .CommonLabels.severity "critical" -}}
+    *Severity:* `Critical`
+    {{- else if eq .CommonLabels.severity "warning" -}}
+    *Severity:* `Warning`
+    {{- else if eq .CommonLabels.severity "info" -}}
+    *Severity:* `Info`
+    {{- else -}}
+    *Severity:* :question: {{ .CommonLabels.severity }}
+    {{- end }}
+    {{- "\n" -}}
+{{- end }}
+
+{{/* Alertmanager default icon link prometheus */}}
+{{ define "slack.god.icon_url" }}https://emojis.slackmojis.com/emojis/images/1643514146/1055/prometheus.png?1643514146{{ end }}
+
+{{/* Alertmanager default icon emoji link */}}
+{{ define "slack.god.icon_emoji" }}https://emojis.slackmojis.com/emojis/images/1643514146/1055/prometheus.png?1643514146{{ end }}
+

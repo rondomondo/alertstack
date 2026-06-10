@@ -1,0 +1,44 @@
+global:
+  scrape_interval: 5s
+  scrape_timeout: 5s
+  evaluation_interval: 5s
+rule_files:
+  # The rules/alerts you want to use/test
+  # sometimes this is called alerts.yaml, gatewayAlerts.yml, serviceAlerts.yml etc...
+  - rules.yml
+  - alerts-mesh-team.yml
+alerting:
+  alertmanagers:
+    - static_configs:
+        # the default port for the alertmanager to use
+        # if this is running under docker then we should use host.docker.internal
+        # instead of localhost so the containers can find each other
+        - targets:
+            - host.docker.internal:9093
+      scheme: http
+      timeout: 10s
+      api_version: v2
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      # the default port for the prometheus to use
+      # if this is running under docker then we should use host.docker.internal
+      # instead of localhost so the containers can find each other
+      - targets: ["host.docker.internal:9090"]
+  - job_name: pingpong
+    static_configs:
+      # the default port for our own custom go application.
+      # if this is running under docker then we should use host.docker.internal
+      # instead of localhost so the containers can find each other
+      - targets: ["host.docker.internal:8090"]
+  - job_name: some_service
+    static_configs:
+      # the default port for our own custom go application.
+      # if this is running under docker then we should use host.docker.internal
+      # instead of localhost so the containers can find each other
+      - targets: ["host.docker.internal:8090"]
+  - job_name: envoy
+    metrics_path: /stats/prometheus
+    static_configs:
+      # Envoy admin API -- exposes proxy stats at /stats/prometheus
+      - targets: ["host.docker.internal:9901"]

@@ -1,0 +1,105 @@
+templates:
+  - "templates/*.tmpl"
+global:
+  resolve_timeout: 1m
+
+  # slack_api_url: $SLACK_API_URL
+  pagerduty_url: "https://events.pagerduty.com/v2/enqueue"
+
+  # Use this to send slack receiver POST requests to the TestPlayground Slack workspace.
+  slack_api_url: "https://hooks.slack.com/services/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"
+inhibit_rules:
+  - source_matchers:
+      - alertname = IgnoreMeBigTime
+    target_matchers:
+      - instance =~ .+
+    equal: ["instance"]
+  - source_matchers:
+      - alertname = MeAsWell
+    target_matchers:
+      - instance =~ .+
+    equal: ["edge_pop"]
+route:
+  # wait at least this long before sending a new set of group alerts
+  group_wait: 10s
+  # wait this long after sending the first groups of alerts to send more
+  group_interval: 30s
+  # wait this long before resending any alerts again
+  repeat_interval: 10s
+  group_by: [alertname, instance, cluster]
+  receiver: "default-receiver"
+  routes:
+    - receiver: "slack-receiver-god"
+      matchers:
+        ['{severity=~"warning|critical|page", extra_slack_recipient_god=~".+"}']
+      continue: true
+    - receiver: "pagerduty-receiver-god"
+      matchers: ['{severity=~"critical", pd_group=~".+"}']
+      continue: false
+    - receiver: "default-receiver-god"
+      matchers: ['{severity=~"critical|warning|page"}']
+      continue: true
+receivers:
+  - name: slack-receiver-god
+    slack_configs:
+      - channel: "{{ .CommonLabels.extra_slack_recipient_god }}"
+        title: '{{ template "slack.god.title" . }}'
+        title_link: '{{ template "slack.default.titlelink" . }}'
+        color: '{{ template "slack.god.color" . }}'
+        text: '{{ template "slack.god.text" . }}'
+        icon_emoji: '{{ template "slack.god.icon_emoji" . }}'
+        icon_url: '{{ template "slack.god.icon_url" . }}'
+        actions:
+          - type: button
+            # emoji do not show on slack mobile app
+            text: "Dashboard :chart_with_upwards_trend:"
+            #text: 'Dashboard'
+            style: primary
+            url: '{{ template "slack.god.get_dashboard_url" (index .Alerts 0) }}'
+          - type: button
+            # emoji do not show on slack mobile app
+            text: "Logs :memo:"
+            #text: 'Logs'
+            style: primary
+            url: '{{ template "slack.god.get_logs_url" (index .Alerts 0) }}'
+          - type: button
+            #text: 'Runbook'
+            # emoji do not show on slack mobile app
+            text: "Runbook :green_book:"
+            style: primary
+            url: '{{ template "slack.god.get_runbook_url" (index .Alerts 0) }}'
+        fallback: '{{ template "slack.default.fallback" . }}'
+        footer: '{{ template "slack.god.footer" }}'
+        send_resolved: true
+  - name: pagerduty-receiver-god
+    pagerduty_configs:
+      - send_resolved: true
+        client_url: '{{ template "pagerduty.default.clientURL" . }}'
+        client: "View this in Alert Manager"
+        routing_key: "ce0b1b79920d450bc04f14577b9d124c"
+        description: '{{ template "pagerduty.god.title" . }}'
+        component: '{{ template "pagerduty.god.component"  (index .Alerts 0) }}'
+        severity: "{{ .CommonLabels.severity }}"
+        group: "{{ .CommonLabels.group_name  }}"
+        links:
+          - text: '{{ "Service Dashboard" }}'
+            href: '{{ template "pagerduty.god.get_dashboard_url" (index .Alerts 0) }}'
+          - text: '{{ "Alert Logs" }}'
+            href: '{{ template "pagerduty.god.get_logs_url" (index .Alerts 0) }}'
+          - text: '{{ "Related Grafana Dashboard" }}'
+            href: '{{ template "pagerduty.god.get_grafana_url" (index .Alerts 0) }}'
+          - text: '{{ "Alert Runbook" }}'
+            href: '{{ template "pagerduty.god.get_runbook_url" (index .Alerts 0) }}'
+        details:
+          severity: "{{ .CommonLabels.severity }}"
+          alert_summary: "{{ range .Alerts.Firing }}{{ .Annotations.summary }}{{ end }}"
+          description: "{{ range .Alerts.Firing }}{{ .Annotations.description }}{{ end }}"
+          firing: '{{ template "pagerduty.god.instances" .Alerts.Firing }}'
+          num_firing: "{{ .Alerts.Firing | len }}"
+          num_resolved: "{{ .Alerts.Resolved | len }}"
+          resolved: '{{ template "pagerduty.god.instances" .Alerts.Resolved }}'
+  - name: default-receiver-god
+    webhook_configs:
+      - url: http://host.docker.internal:8090/webhook
+        send_resolved: true
+  - name: default-receiver

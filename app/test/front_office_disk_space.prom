@@ -1,0 +1,1 @@
+front_office_disk_space{cluster_name="front_office",front_office_disk_space="0",instance="prx1.ams",cluster="eu-marley",deployment="marley",network_region="EMEA",edge_loc="ams",region="eu-central-1-mgmt",servergroup="proxy",frw_name="frw1.ams"} 42

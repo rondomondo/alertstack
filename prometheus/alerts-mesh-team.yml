@@ -1,0 +1,122 @@
+groups:
+  - name: front_office_disk_critical
+    rules:
+      - alert: front_office_disk_critical
+        expr: front_office_disk_space{front_office_disk_space="0"} < 10
+        for: 10s
+        labels:
+          severity: critical
+          pd_group: sre
+          extra_slack_recipient: "#alert-receiver"
+          extra_slack_recipient_1: "#prom-sre"
+        annotations:
+          description: "Front office instance `{{$labels.instance}}` disk space is critically low at `{{$value}}`."
+          summary: "Front office disk space critical on `{{$labels.instance}}`"
+          logs_url: "https://alertstack.org:8443/logs?instance={{$labels.instance}}"
+          grafana_url: "https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          runbook_base: "https://alertstack.org:8443/runbooks/front-office-disk"
+          dashboard_url: "https://alertstack.org:8443/grafana/d/alertstack-main"
+
+  - name: front_office_disk_warn
+    rules:
+      - alert: front_office_disk_warn
+        expr: front_office_disk_space{front_office_disk_space="0"} < 30
+        for: 30s
+        labels:
+          severity: warning
+          extra_slack_recipient: "#alert-receiver"
+          extra_slack_recipient_1: "#prom-sre"
+        annotations:
+          description: "Front office instance `{{$labels.instance}}` disk space is below the warning threshold at `{{$value}}`."
+          summary: "Front office disk space warning on `{{$labels.instance}}`"
+          logs_url: "https://alertstack.org:8443/logs?instance={{$labels.instance}}"
+          grafana_url: "https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          runbook_base: "https://alertstack.org:8443/runbooks/front-office-disk"
+          dashboard_url: "https://alertstack.org:8443/grafana/d/alertstack-main"
+
+  - name: front_office_unavailable
+    rules:
+      - alert: front_office_unavailable
+        expr: front_office == 0
+        for: 10s
+        labels:
+          severity: critical
+          pd_group: sre
+          extra_slack_recipient: "#alert-receiver"
+          extra_slack_recipient_1: "#prom-sre"
+        annotations:
+          description: "Front office service `{{$labels.oid}}` is reporting unavailable on `{{$labels.instance}}`."
+          summary: "Front office service `{{$labels.oid}}` is unavailable"
+          logs_url: "https://alertstack.org:8443/logs?oid={{$labels.oid}}"
+          grafana_url: "https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          runbook_base: "https://alertstack.org:8443/runbooks/front-office-unavailable"
+          dashboard_url: "https://alertstack.org:8443/grafana/d/alertstack-main"
+
+  - name: front_office_degraded
+    rules:
+      - alert: front_office_degraded
+        expr: front_office > 0 and front_office < 5
+        for: 30s
+        labels:
+          severity: warning
+          extra_slack_recipient: "#alert-receiver"
+          extra_slack_recipient_1: "#prom-sre"
+        annotations:
+          description: "Front office service `{{$labels.oid}}` is running degraded with value `{{$value}}` on `{{$labels.instance}}`."
+          summary: "Front office service `{{$labels.oid}}` is degraded"
+          logs_url: "https://alertstack.org:8443/logs?oid={{$labels.oid}}"
+          grafana_url: "https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          runbook_base: "https://alertstack.org:8443/runbooks/front-office-degraded"
+          dashboard_url: "https://alertstack.org:8443/grafana/d/alertstack-main"
+
+  - name: envoy_cluster_request_rate_low
+    rules:
+      - alert: envoy_cluster_request_rate_low
+        expr: envoy_cluster_upstream_rq_total < 100
+        for: 2m
+        labels:
+          severity: warning
+          extra_slack_recipient: "#alert-receiver"
+          extra_slack_recipient_1: "#prom-sre"
+        annotations:
+          description: "Cluster `{{$labels.cluster_name}}` request rate has dropped to `{{$value}}` - possible upstream issue or traffic drain."
+          summary: "Low request rate on Envoy cluster `{{$labels.cluster_name}}`"
+          logs_url: "https://alertstack.org:8443/logs?cluster={{$labels.cluster_name}}"
+          grafana_url: "https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          runbook_base: "https://alertstack.org:8443/runbooks/envoy-low-request-rate"
+          dashboard_url: "https://alertstack.org:8443/grafana/d/alertstack-main"
+
+  - name: envoy_cluster_all_4xx
+    rules:
+      - alert: envoy_cluster_all_4xx
+        expr: envoy_cluster_upstream_rq_total{envoy_response_code_class="4xx"} > 50
+        for: 1m
+        labels:
+          severity: warning
+          extra_slack_recipient: "#alert-receiver"
+          extra_slack_recipient_1: "#prom-sre"
+        annotations:
+          description: "Cluster `{{$labels.cluster_name}}` has recorded `{{$value}}` 4xx responses (code {{$labels.envoy_response_code}}) - client errors may indicate a config or auth issue."
+          summary: "Elevated 4xx rate on Envoy cluster `{{$labels.cluster_name}}`"
+          logs_url: "https://alertstack.org:8443/logs?cluster={{$labels.cluster_name}}"
+          grafana_url: "https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          runbook_base: "https://alertstack.org:8443/runbooks/envoy-4xx-errors"
+          dashboard_url: "https://alertstack.org:8443/grafana/d/alertstack-main"
+
+  - name: envoy_cx_active_critical
+    rules:
+      - alert: envoy_cx_active_critical
+        expr: envoy_cluster_upstream_cx_active > 20
+        for: 1m
+        labels:
+          severity: critical
+          pd_group: sre
+          extra_slack_recipient: "#alert-receiver"
+          extra_slack_recipient_1: "#prom-sre"
+        annotations:
+          description: "Cluster `{{$labels.cluster_name}}` has `{{$value}}` active upstream connections, exceeding the critical threshold."
+          summary: "Critical connection count on Envoy cluster `{{$labels.cluster_name}}`"
+          logs_url: "https://alertstack.org:8443/logs?cluster={{$labels.cluster_name}}"
+          grafana_url: "https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          runbook_base: "https://alertstack.org:8443/runbooks/envoy-cx-overload"
+          dashboard_url: "https://alertstack.org:8443/grafana/d/alertstack-main"
