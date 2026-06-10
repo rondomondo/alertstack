@@ -5,7 +5,7 @@
 set -euo pipefail
 
 REGION="us-east-1"
-AWS_PROFILE="${AWS_PROFILE:-daveadmin}"
+AWS_PROFILE="${AWS_PROFILE:-limitedsuperpowers}"
 STATE_BUCKET="alertstack-tofu-state"
 DEPLOY_BUCKET="alertstack-deploy"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

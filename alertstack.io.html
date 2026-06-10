@@ -18,6 +18,19 @@
         }
 
         #domain, #title {/**/}
+
+        @keyframes dblclick-hint {
+            0%   { opacity: 1; transform: scale(1);    background: transparent;                    border-radius: 6px; }
+            25%  { opacity: 0.55; transform: scale(0.96); background: rgba(99, 179, 237, 0.18);   border-radius: 6px; }
+            50%  { opacity: 1; transform: scale(1);    background: transparent;                    border-radius: 6px; }
+            75%  { opacity: 0.55; transform: scale(0.96); background: rgba(99, 179, 237, 0.18);   border-radius: 6px; }
+            100% { opacity: 1; transform: scale(1);    background: transparent;                    border-radius: 6px; }
+        }
+
+        .dblclick-hinting {
+            animation: dblclick-hint 0.45s ease-in-out;
+            cursor: pointer;
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -98,9 +111,23 @@
             );
         }
         
+    const AUTO_DBLCLICK_DELAY_MS = 5000;
+
+    function triggerAutoDblClick(elementId) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+        el.classList.add('dblclick-hinting');
+        el.addEventListener('animationend', () => {
+            el.classList.remove('dblclick-hinting');
+            el.dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true }));
+        }, { once: true });
+    }
+
+    setTimeout(() => triggerAutoDblClick('domain'), AUTO_DBLCLICK_DELAY_MS);
+
     try {
-            attachDoubleTapListener('domain', () => 'https://alertstack.org/README');
-            attachDoubleClickListener('domain', () => 'https://alertstack.org/README');
+            attachDoubleTapListener('domain', () => 'https://alertstack.io/README.html');
+            attachDoubleClickListener('domain', () => 'https://alertstack.io/README.html');
         }
      catch (e) {}
 

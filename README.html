@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Alertstack</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only],
+.vscode-high-contrast:not(.vscode-high-contrast-light) img[src$=\#gh-light-mode-only],
+.vscode-high-contrast-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 12px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <span id="markdown-mermaid" aria-hidden="true" data-config="{&quot;darkModeTheme&quot;:&quot;vscode&quot;,&quot;lightModeTheme&quot;:&quot;vscode&quot;,&quot;maxTextSize&quot;:50000,&quot;clickDrag&quot;:&quot;alt&quot;,&quot;showControls&quot;:&quot;onHoverOrFocus&quot;,&quot;resizable&quot;:true,&quot;maxHeight&quot;:&quot;&quot;}"></span>
+				<h1 id="alertstack">Alertstack <a href="https://github.com/rondomondo/alertstack#alertstack" target="_blank" rel="noopener" title="View on GitHub" style="text-decoration:none;vertical-align:middle;margin-left:6px;opacity:0.55;"><svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor" aria-label="GitHub"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg></a></h1>
+<p>A self-contained local observability stack for developing and testing <a href="https://prometheus.io/">Prometheus</a> alert rules, <a href="https://prometheus.io/docs/alerting/latest/alertmanager/">Alertmanager</a> configs, and <a href="https://grafana.com/">Grafana</a> dashboards before they touch any shared environment.</p>
+<h1 id="quickstart">Quickstart</h1>
+<blockquote>
+<p><strong>Prerequisite:</strong> add <code>alertstack.org</code> to <code>/etc/hosts</code> (used as the local domain throughout):</p>
+<pre><code class="language-bash">sudo sh -c <span class="hljs-string">&#x27;echo &quot;127.0.0.1 alertstack.org&quot; &gt;&gt; /etc/hosts&#x27;</span>
+</code></pre>
+</blockquote>
+<details open>
+<summary><strong>Clone, build and run</strong>
+<pre><code class="language-bash">git <span class="hljs-built_in">clone</span> https://github.com/rondomondo/alertstack.git &amp;&amp; <span class="hljs-built_in">cd</span> alertstack
+
+<span class="hljs-comment"># copy the env template and adjust credentials if desired</span>
+<span class="hljs-built_in">cp</span> .env.template .<span class="hljs-built_in">env</span>
+
+<span class="hljs-comment"># build images, generate a self-signed TLS cert, and start all five services</span>
+make stack-up
+
+<span class="hljs-comment"># see copy-pasteable examples</span>
+make examples
+</code></pre>
+</summary>
+<p><img src="assets/quickstart-terminal.svg" alt=""></p>
+</details>
+<p>Once the stack is up, all services are reachable through the Envoy HTTPS proxy:</p>
+<pre><code>https://alertstack.org:8443/prometheus/   -&gt; Prometheus
+https://alertstack.org:8443/alertmanager/ -&gt; Alertmanager
+https://alertstack.org:8443/grafana/      -&gt; Grafana
+https://alertstack.org:8443/              -&gt; pingpong
+</code></pre>
+<blockquote>
+<p><strong>Chrome TLS warning:</strong> with a self-signed cert Chrome may block the page. Click anywhere on the page and type <code>thisisunsafe</code> to proceed.</p>
+</blockquote>
+<details>
+<summary>More on the TLS/SSL Certificate Warning on Chrome</summary>
+<p>When using a self signed cert you might see a warning like the following. See the details below on the workaround.</p>
+<table>
+  <tr>
+    <td>&#x26A0;&#xFE0F; Chrome Self-Signed<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Certificate Warning</td>
+    <td>
+<p><a href="https://github.com/chromium/chromium/blob/1471dcf45d95068bb476b06bcebdbb9acde8d996/net/base/net_error_list.h#L529">NET::ERR_CERT_AUTHORITY_INVALID</a></p>
+</td>
+  </tr>
+  <tr>
+    <td width="33%">
+    <strong>When visiting an HTTPS endpoint</strong>
+    Chrome may block the page with a security warning.<br><br>To bypass it, click anywhere on the browser window and type <code>thisisunsafe</code> (no spaces) then the page will load immediately.</td>
+    <td width="70%"><a href="https://chromium.googlesource.com/chromium/src/+/d8fc089b62cd4f8d907acff6fb3f5ff58f168697/components/security_interstitials/core/browser/resources/interstitial_large.js#19"><img target="_blank" title="type `thisisunsafe`" src="assets/thisisunsafe.webp" alt="Chrome privacy error" width="60%"></a></td>
+  </tr>
+</table>
+</details>
+<br>
+<hr>
+<h1 id="overview">Overview</h1>
+<p>Alert rules and Alertmanager configs in real environments are tightly coupled YAML files that accumulate across teams and vintages. Editing them safely means a full develop-merge-deploy-test cycle against staging before you know if they even parse correctly.</p>
+<p>Alertstack short-circuits that loop. Run the full stack locally, inject synthetic metrics via <a href="app/pingpong.go"><code>pingpong</code></a>, and validate rule syntax, routing logic, and notification templates in isolation - without touching a shared environment.</p>
+<details>
+<summary><strong>Git workflow - how alertstack fits into a GitOps observability pipeline</strong></summary>
+<p><img src="assets/git-workflow-mermaid.webp" alt=""></p>
+</details>
+<p>The stack runs five services via <a href="https://docs.docker.com/compose/">docker-compose</a>, all behind a single Envoy reverse proxy:</p>
+<h3 id="pingpong"><a href="app/pingpong.go"><code>pingpong</code></a></h3>
+<p>This is a toy service/application written in golang. It provides test <a href="https://prometheus.io/docs/alerting/latest/configuration/#receiver">integration endpoints</a> for /pagerduty /slack and /webhooks. It also provides a proxy stub for the <a href="https://prometheus.io/docs/prometheus/latest/querying/api/#targets">/metrics</a> API endpoint so we can see what exactly prometheus is scraping, and when.</p>
+<p>This endpoint also allows for the cloning of any existing metrics in this standalone environment. Input can be both JSON and the <a href="https://github.com/prometheus/docs/blob/main/content/docs/instrumenting/exposition_formats.md#exposition-formats">Prometheus Client Exposition Format</a> (which is compatible with the <a href="https://openmetrics.io/">openmetrics</a> project). In our go application the metrics are implemented using the Prometheus and <a href="https://victoriametrics.com/">Victoria Metrics</a> golang client libraries. We use these to allow simulation of actual metrics gathering for testing.</p>
+<p>See the <a href="app/test/examples.sh">metrics examples and usage</a> for more. The Pingpong app exposes various endpoints like...</p>
+<pre><code class="language-bash"><span class="hljs-comment"># the basic endpoints exposed (all via the Envoy HTTPS proxy)</span>
+curl -k https://alertstack.org:8443/ping
+
+curl -k https://alertstack.org:8443/metrics
+
+curl -k https://alertstack.org:8443/create
+
+curl -k https://alertstack.org:8443/update
+
+curl -k https://alertstack.org:8443/echo
+
+curl -k https://alertstack.org:8443/v2/enqueue
+</code></pre>
+<h3 id="frontend-proxy"><a href="src/frontend-proxy/"><code>frontend-proxy</code></a></h3>
+<p>An <a href="https://www.envoyproxy.io/">Envoy</a> reverse proxy that provides a single ingress point for the stack. HTTP on port 8080 redirects to HTTPS on port 8443; traffic is routed to each backend by path prefix (see routing table above). A <a href="scripts/gen_cert.py">self-signed TLS certificate</a> is generated automatically on first run.</p>
+<h3 id="uniformity-of-the-ui-assets">Uniformity of the UI assets</h3>
+<p>You might notice the visual consistency of some notification UI elements. This is an attempt at standardisation of the actual alerting and action display templates that format the messages/events sent upstream to services like Pagerduty, Dynatrace, ServiceNow, Slack and elsewhere. Standardised so the look and key information look consistent to a responder no matter the service. Obvious advantages to this standardised look...</p>
+<ul>
+<li>Simplifies the variation and inconsistencies that can occur in field names, message formats (pagerduty, slack, traces, mobile) across the various projects/yaml resources in an enterprise.</li>
+<li>Reduce the complexity and redundancy of the various rules/alerts type files (env1.Alerts.xml, env2.Alerts.xml...) slowly over time.</li>
+<li>Provide a dynamic and contextually relevant set of <strong><em>actionable</em></strong> links for responders: On-Call, SRE, IR, and others.</li>
+<li>Automate insertion of Runbook, Logs, Grafana, Dashboard links with sensible fallbacks for default.</li>
+<li>Reduce the amount of prior knowledge a responder needs to know to address alerted issues. Achieved through the insertion of all the relevant key information in the output formats. Demonstrated here by back links to Prometheus, Grafana, Alertmanager, Logs etc.</li>
+<li>Faster mean time to repair <a href="https://sre.google/workbook/how-sre-relates/#move-fast-by-reducing-the-cost-of-failure">mttr</a> for incidents (also mean time to detect <a href="https://static.googleusercontent.com/media/sre.google/en//static/pdf/IncidentMeticsInSre.pdf">mtt*</a> ).</li>
+</ul>
+<h3 id="a-few-commands">A few commands</h3>
+<p>Assuming the stack is up (<code>docker compose ps</code>) try the following</p>
+<pre><code class="language-bash">
+<span class="hljs-comment"># sanity test</span>
+curl -k https://alertstack.org:8443/time
+
+<span class="hljs-comment"># attach some logs</span>
+make stack-logs
+
+<span class="hljs-comment"># Open another terminal window and try some of the example commands from this</span>
+make examples
+
+<span class="hljs-comment"># Create a metric to match a realistic one</span>
+<span class="hljs-built_in">cat</span> app/test/envoy_upstream_rq.prom | curl -k --data-binary @- https://alertstack.org:8443/create
+
+<span class="hljs-comment"># Update that metric</span>
+<span class="hljs-built_in">cat</span> app/test/envoy_upstream_rq.prom | curl -k --data-binary @- https://alertstack.org:8443/update
+
+<span class="hljs-comment"># List all the metric names it knows about thus far</span>
+curl -k -s https://alertstack.org:8443/metrics | prom2json | jq <span class="hljs-string">&#x27;.[].name&#x27;</span>
+
+<span class="hljs-comment"># The WEB UI components are all accessible via the Envoy proxy. Start with looking at prometheus</span>
+https://alertstack.org:8443/prometheus/
+
+<span class="hljs-comment"># See the grafana dashboard (admin/grafana)</span>
+https://alertstack.org:8443/grafana/
+
+<span class="hljs-comment"># And the alertmanager</span>
+https://alertstack.org:8443/alertmanager/
+
+<span class="hljs-comment"># The traffic app pingpong has some actions</span>
+https://alertstack.org:8443/ping
+</code></pre>
+<br>
+<blockquote>
+<p>💡 <strong>Tip:</strong> Use <code>make stack-logs</code> to monitor all interaction with the alertstack components.
+Particularly useful to see when other systems are calling or when alerts get triggered, as well as seeing the JSON prettified view of slack and pagerduty payloads.</p>
+</blockquote>
+<p><br><br></p>
+<p>
+<h3 id="checking-out-the-stack-configuration-files">Checking out the stack configuration files</h3>
+<p>The main two files that are of interest would be the <a href="prometheus/rules.yml">prometheus/rules.yml</a> file and <a href="alertmanager/alertmanager.yml">alertmanager/alertmanager.yml</a>
+<br></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="prometheus/rules.yml">prometheus/rules.yml</a></td>
+<td>Define the fields, rules, and triggers for alerts</td>
+</tr>
+<tr>
+<td><a href="alertmanager/alertmanager.yml">alertmanager/alertmanager.yml</a></td>
+<td>Define the set of receivers to be notified of an alert and under what circumstances</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+<h2 id="aligning-output-template-formats-for-alerts">Aligning Output Template formats for Alerts</h2>
+<p>Notice we make extensive use of the <a href="https://prometheus.io/docs/alerting/latest/notifications/">Notification Templates</a> for both Prometheus and Alertmanager. These help to format the output in a consistent way across Pagerduty, Slack and others. The objective is to make them look as similar as possible within the constraints of the features the relevant integration.</p>
+<p>So these are actually <a href="https://pkg.go.dev/text/template">Go Templates</a> that we use to customize our <a href="https://prometheus.io/docs/prometheus/latest/configuration/template_reference/">Prometheus Templates</a> and also the <a href="https://prometheus.io/docs/alerting/latest/notifications/">AlertManager templates</a></p>
+<p>Below is a realistic example of Alerts sent to PagerDuty and Slack of the same alert trigger. The key thing to notice is the similar field content and the inclusion of contextually relevant Dashboard, Runbook, Logs links...</p>
+<br>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Slack Warning Alert</th>
+<th style="text-align:center">Slack PagerDuty Alert</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><img src="assets/slack_warning_page.webp" alt=""></td>
+<td style="text-align:center"><img src="assets/slack_pager_page.webp" alt=""></td>
+</tr>
+<tr>
+<td style="text-align:center"><img src="assets/slack-critical-buttons-1.webp" alt=""></td>
+<td style="text-align:center"><img src="assets/slack-resolve-buttons-1.webp" alt=""></td>
+</tr>
+</tbody>
+</table>
+<br>
+<hr>
+<h2 id="project-layout">Project layout</h2>
+<details>
+<summary>This filetree describes the project lay out. You can run any part of this individually.</summary>
+<h2 id="directory-tree">Directory tree</h2>
+<p>As generated by <a href="scripts/filetree">filetree</a></p>
+<pre><code>.
+    ├── .claudeignore
+    ├── .env
+    ├── .env.template
+    ├── .githooks
+    │   └── commit-msg
+    ├── .gitignore
+    ├── CLAUDE.md
+    ├── Makefile
+    ├── README.md
+    ├── alertmanager
+    │   ├── alertmanager.yml
+    │   └── templates
+    │       ├── default.tmpl
+    │       ├── pagerDuty.tmpl
+    │       ├── pagerDutyExtraGOD.tmpl
+    │       ├── slack.tmpl
+    │       └── slackExtraGOD.tmpl
+    ├── alertstack.io.html
+    ├── app
+    │   ├── Dockerfile
+    │   ├── Makefile
+    │   ├── README.md
+    │   ├── go.mod
+    │   ├── go.sum
+    │   ├── pingpong.go
+    │   ├── pingpong_test.go
+    │   └── test
+    │       ├── envoy_cx_active.prom
+    │       ├── envoy_downstream_rq_xx.prom
+    │       ├── envoy_upstream_rq.prom
+    │       ├── envoy_upstream_rq.slack.prom
+    │       ├── envoy_upstream_rq.urls.prom
+    │       ├── examples.sh
+    │       ├── front_office.prom
+    │       ├── front_office_disk_space.prom
+    │       └── multi_metric.prom
+    ├── assets
+    │   ├── alert-pagerduty-1.jpg
+    │   ├── alert-pagerduty-2.jpg
+    │   ├── alert-pagerduty-3.jpg
+    │   ├── alert-pagerduty-4.jpg
+    │   ├── git-workflow-mermaid.webp
+    │   ├── grafana.webp
+    │   ├── output.jpg
+    │   ├── prometheus-icon.webp
+    │   ├── prometheus-logo.webp
+    │   ├── quickstart-terminal.svg
+    │   ├── slack-critical-buttons-1.webp
+    │   ├── slack-resolve-buttons-1.webp
+    │   ├── slack_pager_page.webp
+    │   ├── slack_warning_page.webp
+    │   └── thisisunsafe.webp
+    ├── docker-compose.yml
+    ├── grafana
+    │   ├── dashboards
+    │   │   └── alertstack
+    │   │       └── alertstack.json
+    │   └── provisioning
+    │       ├── dashboards
+    │       │   └── dashboards.yaml
+    │       └── datasources
+    │           └── datasource.yml
+    ├── mermaid-reference.md
+    ├── prometheus
+    │   ├── alerts-mesh-team.yml
+    │   ├── prometheus.yml
+    │   ├── rules.yml
+    │   └── web.config.file
+    ├── pyproject.toml
+    ├── requirements.txt
+    ├── scripts
+    │   ├── alert-severity-stats.sh
+    │   ├── filetree
+    │   ├── gen_cert.py
+    │   ├── spellingcheck.py
+    │   └── whitelistwords.csv
+    ├── src
+    │   └── frontend-proxy
+    │       ├── Dockerfile
+    │       ├── README.md
+</code></pre>
+</details>
+<h2 id="the-docker-composeyml-file">The <a href="docker-compose.yml"><em>docker-compose.yml</em></a> file</h2>
+<p>Five services share the <code>alertstack</code> bridge network. All recommended access is through the Envoy proxy at port 8443 -- the proxy sets the correct path prefixes and URL rewrites each service UI requires.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Direct port</th>
+<th>Via proxy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Envoy HTTP</td>
+<td>8080</td>
+<td>-- redirects to HTTPS</td>
+</tr>
+<tr>
+<td>Envoy HTTPS</td>
+<td>8443</td>
+<td>primary ingress</td>
+</tr>
+<tr>
+<td>Envoy admin</td>
+<td>10000</td>
+<td>--</td>
+</tr>
+<tr>
+<td>Prometheus</td>
+<td>9090</td>
+<td><code>/prometheus/</code></td>
+</tr>
+<tr>
+<td>Alertmanager</td>
+<td>9093</td>
+<td><code>/alertmanager/</code></td>
+</tr>
+<tr>
+<td>Grafana</td>
+<td>3000</td>
+<td><code>/grafana/</code></td>
+</tr>
+<tr>
+<td>Pingpong</td>
+<td>8090</td>
+<td><code>/</code></td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary>Full <code>docker-compose.yml</code>
+<br>
+<blockquote>
+<p><strong>prometheus</strong> -- scrapes metrics, evaluates alert rules, exposes the TSDB. Config lives in <code>./prometheus/</code>. Health-checked by all dependants before they start.</p>
+<p><strong>alertmanager</strong> -- receives firing alerts from Prometheus, deduplicates/groups them, and routes notifications. Config lives in <code>./alertmanager/</code>.</p>
+<p><strong>grafana</strong> -- dashboards and alerting UI. Anonymous access is enabled with Admin role so no login is needed in local dev. The default dashboard is loaded from <code>./grafana/dashboards/alertstack/alertstack.json</code>.</p>
+<p><strong>frontend-proxy</strong> -- Envoy reverse proxy, built from <code>./src/frontend-proxy/Dockerfile</code>. Terminates TLS, routes by path prefix to each upstream, and rewrites external URLs. Certs are mounted read-only from <code>./app/certs/</code>.</p>
+<p><strong>pingpong</strong> -- lightweight Go HTTP service that generates synthetic traffic and exposes <code>/ping</code> / <code>/pong</code> endpoints used to trigger example alerts.</p>
+</blockquote>
+</summary>
+<pre><code class="language-yaml"><span class="hljs-attr">services:</span>
+    <span class="hljs-attr">prometheus:</span>
+        <span class="hljs-attr">image:</span> <span class="hljs-string">prom/prometheus</span>
+        <span class="hljs-attr">networks:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">alertstack</span>
+        <span class="hljs-attr">container_name:</span> <span class="hljs-string">prometheus</span>
+        <span class="hljs-attr">command:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--config.file=/etc/prometheus/prometheus.yml&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--web.enable-admin-api&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--web.enable-lifecycle&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--web.external-url=https://${ALERTSTACK_HOST:-alertstack.org}:${ENVOY_PORT_TLS:-8443}/prometheus/&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--web.route-prefix=/&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--log.level=info&#x27;</span>
+        <span class="hljs-attr">ports:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-number">9090</span><span class="hljs-string">:9090</span>
+        <span class="hljs-attr">restart:</span> <span class="hljs-string">unless-stopped</span>
+        <span class="hljs-attr">volumes:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">./prometheus:/etc/prometheus</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">prom_data:/prometheus</span>
+        <span class="hljs-attr">healthcheck:</span>
+            <span class="hljs-attr">test:</span> [<span class="hljs-string">&#x27;CMD&#x27;</span>, <span class="hljs-string">&#x27;wget&#x27;</span>, <span class="hljs-string">&#x27;-qO-&#x27;</span>, <span class="hljs-string">&#x27;http://localhost:9090/-/healthy&#x27;</span>]
+            <span class="hljs-attr">interval:</span> <span class="hljs-string">10s</span>
+            <span class="hljs-attr">timeout:</span> <span class="hljs-string">5s</span>
+            <span class="hljs-attr">retries:</span> <span class="hljs-number">5</span>
+
+    <span class="hljs-attr">alertmanager:</span>
+        <span class="hljs-attr">image:</span> <span class="hljs-string">prom/alertmanager</span>
+        <span class="hljs-attr">networks:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">alertstack</span>
+        <span class="hljs-attr">container_name:</span> <span class="hljs-string">alertmanager</span>
+        <span class="hljs-attr">command:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--config.file=/etc/alertmanager/alertmanager.yml&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--web.external-url=https://${ALERTSTACK_HOST:-alertstack.org}:${ENVOY_PORT_TLS:-8443}/alertmanager/&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--web.route-prefix=/&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;--log.level=info&#x27;</span>
+        <span class="hljs-attr">ports:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">${ALERTMANAGER_PORT:-9093}:${ALERTMANAGER_PORT:-9093}</span>
+        <span class="hljs-attr">restart:</span> <span class="hljs-string">unless-stopped</span>
+        <span class="hljs-attr">volumes:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">./alertmanager:/etc/alertmanager</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">alertmanager_data:/alertmanager</span>
+        <span class="hljs-attr">depends_on:</span>
+            <span class="hljs-attr">prometheus:</span>
+                <span class="hljs-attr">condition:</span> <span class="hljs-string">service_healthy</span>
+
+    <span class="hljs-attr">grafana:</span>
+        <span class="hljs-attr">image:</span> <span class="hljs-string">grafana/grafana:12.0.1</span>
+        <span class="hljs-attr">environment:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_SECURITY_ADMIN_USER=${GF_ADMIN_USER:-admin}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_SECURITY_ADMIN_PASSWORD=${GF_ADMIN_PASSWORD:-grafana}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_AUTH_ANONYMOUS_ENABLED=true</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_AUTH_ANONYMOUS_ORG_ROLE=Admin</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_AUTH_DISABLE_LOGIN_FORM=true</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_SERVER_ROOT_URL=https://${ALERTSTACK_HOST:-alertstack.org}:${ENVOY_PORT_TLS:-8443}/grafana/</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_SERVER_SERVE_FROM_SUB_PATH=true</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_LIVE_MAX_CONNECTIONS=0</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/dashboards/alertstack/alertstack.json</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GF_INSTALL_PLUGINS=grafana-lokioperational-app,grafana-exploretraces-app</span>
+        <span class="hljs-attr">volumes:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">./grafana/provisioning:/etc/grafana/provisioning:ro</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">./grafana/dashboards:/etc/grafana/dashboards:ro</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">grafana-data:/var/lib/grafana</span>
+        <span class="hljs-attr">ports:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;3000:3000&#x27;</span> <span class="hljs-comment"># Grafana UI</span>
+        <span class="hljs-attr">networks:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">alertstack</span>
+        <span class="hljs-attr">container_name:</span> <span class="hljs-string">grafana</span>
+        <span class="hljs-attr">restart:</span> <span class="hljs-string">unless-stopped</span>
+        <span class="hljs-attr">depends_on:</span>
+            <span class="hljs-attr">prometheus:</span>
+                <span class="hljs-attr">condition:</span> <span class="hljs-string">service_healthy</span>
+
+    <span class="hljs-attr">frontend-proxy:</span>
+        <span class="hljs-attr">build:</span>
+            <span class="hljs-attr">context:</span> <span class="hljs-string">.</span>
+            <span class="hljs-attr">dockerfile:</span> <span class="hljs-string">./src/frontend-proxy/Dockerfile</span>
+        <span class="hljs-attr">networks:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">alertstack</span>
+        <span class="hljs-attr">container_name:</span> <span class="hljs-string">frontend-proxy</span>
+        <span class="hljs-attr">ports:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">${ENVOY_PORT:-8080}:${ENVOY_PORT:-8080}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">${ENVOY_PORT_TLS:-8443}:${ENVOY_PORT_TLS:-8443}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">${ENVOY_ADMIN_PORT:-9901}:${ENVOY_ADMIN_PORT:-9901}</span>
+        <span class="hljs-attr">restart:</span> <span class="hljs-string">unless-stopped</span>
+        <span class="hljs-attr">volumes:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">./app/certs:/etc/envoy/certs:ro</span>
+        <span class="hljs-attr">environment:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">ENVOY_ADDR=0.0.0.0</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">ENVOY_PORT=${ENVOY_PORT:-8080}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">ENVOY_PORT_TLS=${ENVOY_PORT_TLS:-8443}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">ENVOY_ADMIN_PORT=${ENVOY_ADMIN_PORT:-9901}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">CERT_DOMAIN=${CERT_DOMAIN:-alertstack.org}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">PROMETHEUS_HOST=prometheus</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">PROMETHEUS_PORT=${PROMETHEUS_PORT:-9090}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">ALERTMANAGER_HOST=alertmanager</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">ALERTMANAGER_PORT=${ALERTMANAGER_PORT:-9093}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GRAFANA_HOST=grafana</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">GRAFANA_PORT=${GRAFANA_PORT:-3000}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">FRONTEND_HOST=pingpong</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">FRONTEND_PORT=${ALERTSTACK_PORT:-8090}</span>
+        <span class="hljs-attr">depends_on:</span>
+            <span class="hljs-attr">prometheus:</span>
+                <span class="hljs-attr">condition:</span> <span class="hljs-string">service_healthy</span>
+
+    <span class="hljs-attr">pingpong:</span>
+        <span class="hljs-attr">image:</span> <span class="hljs-string">rondomondo/pingpong</span>
+        <span class="hljs-attr">build:</span>
+            <span class="hljs-attr">context:</span> <span class="hljs-string">./app</span>
+            <span class="hljs-attr">dockerfile:</span> <span class="hljs-string">./Dockerfile</span>
+        <span class="hljs-attr">networks:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">alertstack</span>
+        <span class="hljs-attr">container_name:</span> <span class="hljs-string">pingpong</span>
+        <span class="hljs-attr">ports:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">${ALERTSTACK_PORT:-8090}:${ALERTSTACK_PORT:-8090}</span>
+        <span class="hljs-attr">restart:</span> <span class="hljs-string">unless-stopped</span>
+        <span class="hljs-attr">command:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;-port=8090&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;-port-tls=8443&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;-cert=certs/alertstack.org.crt&#x27;</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">&#x27;-key=certs/alertstack.org.key&#x27;</span>
+        <span class="hljs-attr">volumes:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">./app/certs:/app/certs:ro</span>
+        <span class="hljs-attr">environment:</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">PORT=${ALERTSTACK_PORT:-8090}</span>
+            <span class="hljs-bullet">-</span> <span class="hljs-string">PORT_TLS=${ALERTSTACK_PORT_TLS:-8443}</span>
+
+<span class="hljs-attr">networks:</span>
+    <span class="hljs-attr">alertstack:</span>
+        <span class="hljs-attr">driver:</span> <span class="hljs-string">bridge</span>
+
+<span class="hljs-attr">volumes:</span>
+    <span class="hljs-attr">prom_data:</span>
+    <span class="hljs-attr">alertmanager_data:</span>
+    <span class="hljs-attr">grafana-data:</span>
+</code></pre>
+</details>
+<br>
+<h2 id="operations-reference">Operations reference</h2>
+<details>
+<summary><strong>Makefile - primary interface</strong></summary>
+<br>
+<p>All operations are available as <code>make</code> targets. Run <code>make</code> or <code>make help</code> to see the full list.</p>
+<p><strong>Setup</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make install</code></td>
+<td>Install Python dependencies (used by cert generation)</td>
+</tr>
+<tr>
+<td><code>make install-ubuntu</code></td>
+<td>Bootstrap a fresh Ubuntu host (run as root or with sudo)</td>
+</tr>
+<tr>
+<td><code>make install-tools</code></td>
+<td>Install <code>prom2json</code> and <code>amtool</code> via <code>go install</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>TLS certificates</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make gen-cert</code></td>
+<td>Generate a self-signed TLS cert (<code>CERT_DOMAIN=alertstack.org</code>)</td>
+</tr>
+<tr>
+<td><code>make clean-certs</code></td>
+<td>Remove generated TLS certificates</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Docker (pingpong standalone)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make docker-build</code></td>
+<td>Build the pingpong Docker image (<code>IMAGE_TAG</code> overridable)</td>
+</tr>
+<tr>
+<td><code>make docker-run</code></td>
+<td>Run the pingpong container (HTTP only, port 8090)</td>
+</tr>
+<tr>
+<td><code>make docker-run-tls</code></td>
+<td>Run the pingpong container with TLS (ports 8090+8443); generates cert if absent</td>
+</tr>
+<tr>
+<td><code>make docker-stop</code></td>
+<td>Stop and remove the running pingpong container</td>
+</tr>
+<tr>
+<td><code>make docker-clean</code></td>
+<td>Remove the pingpong Docker image</td>
+</tr>
+<tr>
+<td><code>make docker-reset</code></td>
+<td>Stop container, remove image, and clean all build artifacts</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Stack</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make stack-up</code></td>
+<td>Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)</td>
+</tr>
+<tr>
+<td><code>make stack-down</code></td>
+<td>Stop the alertstack</td>
+</tr>
+<tr>
+<td><code>make stack-logs</code></td>
+<td>Tail logs from all stack services</td>
+</tr>
+<tr>
+<td><code>make stack-clean</code></td>
+<td>Tear down the stack and delete all named volumes</td>
+</tr>
+<tr>
+<td><code>make stack-reset</code></td>
+<td>Wipe stack volumes and restart fresh</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Infrastructure (AWS / OpenTofu)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make infra-bootstrap</code></td>
+<td>One-time: create S3 state + deploy buckets and upload <code>redeploy.sh</code></td>
+</tr>
+<tr>
+<td><code>make infra-init</code></td>
+<td><code>tofu init</code> with remote S3 backend</td>
+</tr>
+<tr>
+<td><code>make infra-plan</code></td>
+<td>Preview infrastructure changes (<code>OUT=file.out</code> to save plan)</td>
+</tr>
+<tr>
+<td><code>make infra-apply</code></td>
+<td>Apply changes (<code>OUT=file.out</code> to apply saved plan)</td>
+</tr>
+<tr>
+<td><code>make infra-destroy</code></td>
+<td>Destroy all AWS resources (prompts for confirmation)</td>
+</tr>
+<tr>
+<td><code>make infra-deploy</code></td>
+<td>SSH to EC2 and run <code>redeploy.sh</code> (git pull + stack-up)</td>
+</tr>
+<tr>
+<td><code>make infra-ssh</code></td>
+<td>Open SSH session on the EC2 instance</td>
+</tr>
+<tr>
+<td><code>make infra-fmt</code></td>
+<td>Format <code>.tf</code> files recursively</td>
+</tr>
+<tr>
+<td><code>make infra-validate</code></td>
+<td>Validate Tofu configuration</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Utilities</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make endpoints</code></td>
+<td>Print stack service URLs (direct and via Envoy proxy)</td>
+</tr>
+<tr>
+<td><code>make aliases</code></td>
+<td>Print shell aliases for docker-exec tools (eval or source)</td>
+</tr>
+<tr>
+<td><code>make examples</code></td>
+<td>Print copy-pasteable curl examples for the running stack</td>
+</tr>
+<tr>
+<td><code>make test</code></td>
+<td>Run Go unit tests for the pingpong server</td>
+</tr>
+<tr>
+<td><code>make clean</code></td>
+<td>Remove build artifacts</td>
+</tr>
+</tbody>
+</table>
+</details>
+<details>
+<summary><strong>Infrastructure — deploying to AWS (OpenTofu)</strong></summary>
+<br>
+<p>The <code>terraform/</code> directory provisions a single EC2 instance (Ubuntu, <code>t2.medium</code>, 40 GB EBS) behind an Elastic IP, with S3 buckets for remote Tofu state and deployment artefacts. The instance bootstraps itself on first boot: installs Docker, clones the repo, and runs <code>make stack-up</code> automatically.</p>
+<p><strong>Prerequisites</strong></p>
+<ul>
+<li><a href="https://opentofu.org/docs/intro/install/">OpenTofu</a> installed (<code>tofu</code>)</li>
+<li>AWS CLI configured with a profile (default: <code>limitedsuperpowers</code>)</li>
+<li>SSH key pair <code>alertstack-ec2</code> registered in AWS; private key at <code>~/.ssh/alertstack-ec2.pem</code></li>
+</ul>
+<p><strong>First-time setup</strong> (run once per AWS account)</p>
+<pre><code class="language-bash"><span class="hljs-comment"># 1. Create S3 state + deploy buckets and upload redeploy.sh</span>
+make infra-bootstrap
+
+<span class="hljs-comment"># 2. Initialise Tofu with the remote S3 backend</span>
+make infra-init
+
+<span class="hljs-comment"># 3. Review what will be created</span>
+make infra-plan
+
+<span class="hljs-comment"># 4. Apply — provisions EC2, EIP, security group, IAM role, EBS volume</span>
+make infra-apply
+</code></pre>
+<p>After <code>infra-apply</code> the instance public IP is printed. The stack starts automatically via <code>user-data.sh.tpl</code> — allow ~2 minutes for Docker images to pull and services to come up.</p>
+<p><strong>Day-2 operations</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>make infra-deploy</code></td>
+<td>SSH to the EC2 instance and run <code>redeploy.sh</code> (git pull + <code>make stack-up</code>)</td>
+</tr>
+<tr>
+<td><code>make infra-ssh</code></td>
+<td>Open an interactive SSH session on the instance</td>
+</tr>
+<tr>
+<td><code>make infra-plan</code></td>
+<td>Preview changes before applying</td>
+</tr>
+<tr>
+<td><code>make infra-apply</code></td>
+<td>Apply pending Tofu changes</td>
+</tr>
+<tr>
+<td><code>make infra-destroy</code></td>
+<td>Destroy all AWS resources (prompts for confirmation)</td>
+</tr>
+<tr>
+<td><code>make infra-fmt</code></td>
+<td>Format all <code>.tf</code> files in place</td>
+</tr>
+<tr>
+<td><code>make infra-validate</code></td>
+<td>Validate Tofu configuration</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Overriding defaults</strong></p>
+<pre><code class="language-bash"><span class="hljs-comment"># Use a different AWS profile or region</span>
+AWS_PROFILE=myprofile REGION=eu-west-1 make infra-plan
+</code></pre>
+<p><strong>Accessing the remote stack</strong></p>
+<p>Once deployed, the stack is reachable at the Elastic IP on the same ports as local:</p>
+<pre><code>https://&lt;elastic-ip&gt;:8443/prometheus/
+https://&lt;elastic-ip&gt;:8443/alertmanager/
+https://&lt;elastic-ip&gt;:8443/grafana/
+https://&lt;elastic-ip&gt;:8443/
+</code></pre>
+<p>Run <code>make infra-ssh</code> to get the IP, or read it directly:</p>
+<pre><code class="language-bash"><span class="hljs-built_in">cd</span> terraform &amp;&amp; tofu output alertstack_aws_public_ip
+</code></pre>
+</details>
+<details>
+<summary><strong>Building the pingpong service</strong></summary>
+<br>
+<p><a href="app/pingpong.go"><em>pingpong.go</em></a> is a golang application. It exposes multiple endpoints on both HTTP and HTTPS. It implements the prometheus client libs as well as the Victoria Metrics golang client libraries.</p>
+<p>The main endpoints of interest are to create/update and view any metric you choose to create. It also implements a simple counter <code>ping_request_count</code> that increments every time the <code>/ping</code> endpoint is called. It also exposes a <code>/metrics</code> endpoint which Prometheus then scrapes. <a href="https://alertstack.org:8443/prometheus/targets?search=">targets</a></p>
+<p>The image is built automatically by <code>make stack-up</code> via docker compose. To build it separately:</p>
+<pre><code class="language-bash">make docker-build
+
+<span class="hljs-comment"># Run the container standalone (HTTP only)</span>
+make docker-run
+
+<span class="hljs-comment"># Run with TLS (generates a cert if absent)</span>
+make docker-run-tls
+</code></pre>
+<p><strong>Build output</strong> - look for a new docker image called <code>alertstack/pingpong</code></p>
+<pre><code>$ docker image ls
+REPOSITORY             TAG       IMAGE ID       CREATED        SIZE
+alertstack/pingpong    latest    9624f3117292   16 hours ago   922MB
+</code></pre>
+</details>
+<details>
+<summary><strong>Deploying the full stack with docker compose</strong></summary>
+<br>
+<p>Run <code>make stack-up</code> to generate certs (if absent) and start all five services.</p>
+<p><img src="assets/quickstart-terminal.svg" alt=""></p>
+<p>Run <code>make endpoints</code> to print all service URLs - both direct and via the Envoy HTTPS proxy:</p>
+<pre><code>$ make endpoints
+Stack ready (direct):
+  Prometheus:   http://localhost:9090
+  Alertmanager: http://localhost:9093
+  Grafana:      http://localhost:3000
+  pingpong:     http://localhost:8090
+Stack Envoy (HTTPS via proxy):
+  Prometheus:   https://alertstack.org:8443/prometheus
+  Alertmanager: https://alertstack.org:8443/alertmanager
+  Grafana:      https://alertstack.org:8443/grafana
+  pingpong:     https://alertstack.org:8443/
+HTTP on : redirects to HTTPS on :8443.
+</code></pre>
+<p>Grafana will auto log you in using the credentials from the <a href="docker-compose.yml">docker-compose.yml</a> file. Check each service came up ok:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Grafana dashboards</strong> - metrics at a glance</td>
+<td style="text-align:center"><strong>Grafana alert rules</strong> - firing and pending alerts</td>
+</tr>
+<tr>
+<td style="text-align:center"><img src="assets/grafanadasboard.webp" alt="Grafana dashboard"></td>
+<td style="text-align:center"><img src="assets/grafanaalerts.webp" alt="Grafana alerts"></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Alertmanager</strong> - routing and silences</td>
+<td style="text-align:center"><strong>Prometheus</strong> - raw query and target health</td>
+</tr>
+<tr>
+<td style="text-align:center"><img src="assets/alertmanager.webp" alt="Alertmanager"></td>
+<td style="text-align:center"><img src="assets/prometheus.webp" alt="Prometheus"></td>
+</tr>
+</tbody>
+</table>
+</details>
+<br>
+<h1 id="next-steps">Next steps</h1>
+<p>Open a terminal window somewhere and kick off some logging to see what is happening</p>
+<pre><code class="language-bash">make stack-logs
+</code></pre>
+<br>
+<p>Send some /ping requests to our pingpong app. This will have the effect of incrementing the internal <code>ping_request_counter</code>. You can optionally give it a path to use if you like.</p>
+<p>Remember you can observe all of this in the log output.</p>
+<pre><code class="language-bash">curl -k https://alertstack.org:8443/ping
+<span class="hljs-comment"># or</span>
+
+curl -k <span class="hljs-string">&#x27;https://alertstack.org:8443/ping?path=/tmp/consul_members&#x27;</span>
+<span class="hljs-comment"># or</span>
+
+curl -k <span class="hljs-string">&#x27;https://alertstack.org:8443/ping?path=/tmp/consul_members&amp;receiver=slack-receiver-abcdef&#x27;</span>
+</code></pre>
+<p>Check out the metrics that the pingpong app displays. This is the same endpoint that Prometheus will scrape. You should see the <code>ping_request_counter</code> increment each time you hit <code>/ping</code>.</p>
+<pre><code class="language-bash"><span class="hljs-comment"># view raw Prometheus metrics</span>
+curl -k --silent https://alertstack.org:8443/metrics
+
+<span class="hljs-comment"># parse and pretty-print with prom2json (install: go install github.com/prometheus/prom2json/cmd/prom2json@latest)</span>
+curl -k --silent https://alertstack.org:8443/metrics | prom2json | jq
+</code></pre>
+<hr>
+<br>
+<h1 id="rules-and-alerts---testing-them-out">RULES and ALERTS - Testing them out</h1>
+<p>Remembering the purpose of this effort is to make it easier to develop, standardise, create and manage alert and monitoring rules and receivers across the different Observability systems typically in use across companies. This is a key part of streamlining our incident management and reliability efforts.</p>
+<p>In this case we are concerned with Prometheus and Alertmanager. Prometheus takes a user defined set of rules that defines alerts [note It is pretty common to see the words rules and alerts used interchangeably]</p>
+<p>So in this case we define our test set of rules/alerts in <a href="prometheus/rules.yml">prometheus/rules.yml</a>. Prometheus then makes use of this <a href="prometheus/rules.yml">rules file</a> in the rules section of the prometheus configuration file called <a href="prometheus/prometheus.yml">prometheus/prometheus.yml</a></p>
+<br>
+<h3 id="a-look-at-some-rules-and-alerts-file-pieces">A look at some rules and alerts file pieces.</h3>
+<p>From <a href="prometheus/rules.yml">prometheus/rules.yml</a> - Envoy upstream errors:</p>
+<pre><code class="language-yaml"><span class="hljs-attr">groups:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">envoy_cluster_errors</span>
+    <span class="hljs-attr">rules:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">alert:</span> <span class="hljs-string">envoy_cluster_errors</span>
+        <span class="hljs-attr">expr:</span> <span class="hljs-string">envoy_cluster_upstream_rq_total{envoy_response_code_class=&quot;5xx&quot;}</span> <span class="hljs-string">==</span> <span class="hljs-number">6</span>
+        <span class="hljs-attr">for:</span> <span class="hljs-string">30s</span>
+        <span class="hljs-attr">labels:</span>
+          <span class="hljs-attr">severity:</span> <span class="hljs-string">critical</span>
+          <span class="hljs-attr">extra_slack_recipient_god:</span> <span class="hljs-string">&quot;#alert-receiver&quot;</span>
+          <span class="hljs-attr">pd_group:</span> <span class="hljs-string">sre</span>
+          <span class="hljs-attr">sn_group:</span> <span class="hljs-string">SRE</span> <span class="hljs-bullet">-</span> <span class="hljs-string">NOC</span>
+        <span class="hljs-attr">annotations:</span>
+          <span class="hljs-attr">summary:</span> <span class="hljs-string">&quot;Envoy upstream cluster 5xx spike on <span class="hljs-template-variable">{{$labels.cluster_name}}</span>&quot;</span>
+          <span class="hljs-attr">description:</span> <span class="hljs-string">&quot;Cluster <span class="hljs-template-variable">{{$labels.cluster_name}}</span> recorded <span class="hljs-template-variable">{{$value}}</span> 5xx responses (code <span class="hljs-template-variable">{{$labels.envoy_response_code}}</span>)&quot;</span>
+          <span class="hljs-attr">logs_url:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/logs?cluster=<span class="hljs-template-variable">{{$labels.cluster_name}}</span>&quot;</span>
+          <span class="hljs-attr">grafana_url:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&amp;from=now-15m&amp;to=now&amp;timezone=browser&amp;var-cluster=<span class="hljs-template-variable">{{$labels.cluster}}</span>&quot;</span>
+          <span class="hljs-attr">dashboard_url:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/grafana/d/alertstack-main&quot;</span>
+          <span class="hljs-attr">runbook_base:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/runbooks/envoy-cluster-errors&quot;</span>
+</code></pre>
+<p>From <a href="prometheus/alerts-mesh-team.yml">prometheus/alerts-mesh-team.yml</a> - service health with multi-recipient routing:</p>
+<pre><code class="language-yaml"><span class="hljs-attr">groups:</span>
+  <span class="hljs-bullet">-</span> <span class="hljs-attr">name:</span> <span class="hljs-string">front_office_disk_critical</span>
+    <span class="hljs-attr">rules:</span>
+      <span class="hljs-bullet">-</span> <span class="hljs-attr">alert:</span> <span class="hljs-string">front_office_disk_critical</span>
+        <span class="hljs-attr">expr:</span> <span class="hljs-string">front_office_disk_space{front_office_disk_space=&quot;0&quot;}</span> <span class="hljs-string">&lt;</span> <span class="hljs-number">10</span>
+        <span class="hljs-attr">for:</span> <span class="hljs-string">10s</span>
+        <span class="hljs-attr">labels:</span>
+          <span class="hljs-attr">severity:</span> <span class="hljs-string">critical</span>
+          <span class="hljs-attr">pd_group:</span> <span class="hljs-string">sre</span>
+          <span class="hljs-attr">extra_slack_recipient:</span> <span class="hljs-string">&quot;#alert-receiver&quot;</span>
+          <span class="hljs-attr">extra_slack_recipient_1:</span> <span class="hljs-string">&quot;#prom-sre&quot;</span>
+        <span class="hljs-attr">annotations:</span>
+          <span class="hljs-attr">description:</span> <span class="hljs-string">&quot;Front office instance `<span class="hljs-template-variable">{{$labels.instance}}</span>` disk space is critically low at `<span class="hljs-template-variable">{{$value}}</span>`.&quot;</span>
+          <span class="hljs-attr">summary:</span> <span class="hljs-string">&quot;Front office disk space critical on `<span class="hljs-template-variable">{{$labels.instance}}</span>`&quot;</span>
+          <span class="hljs-attr">logs_url:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/logs?instance=<span class="hljs-template-variable">{{$labels.instance}}</span>&quot;</span>
+          <span class="hljs-attr">grafana_url:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/grafana/d/alertstack-main/alertstack?orgId=1&amp;from=now-15m&amp;to=now&amp;timezone=browser&amp;var-cluster=<span class="hljs-template-variable">{{$labels.cluster}}</span>&quot;</span>
+          <span class="hljs-attr">runbook_base:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/runbooks/front-office-disk&quot;</span>
+          <span class="hljs-attr">dashboard_url:</span> <span class="hljs-string">&quot;https://alertstack.org:8443/grafana/d/alertstack-main&quot;</span>
+</code></pre>
+<p>The annotation URLs in these rules are not static - they are templated with label values (cluster name, instance, listener) so that each firing alert links directly to the relevant slice of data. Clicking through from a firing alert lands you on the right page with the right context already applied.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="assets/firing1.webp" alt="Firing alert in Alertmanager showing templated URLs"></td>
+<td><img src="assets/fakedashboard.webp" alt="Grafana dashboard filtered to the affected cluster"></td>
+</tr>
+<tr>
+<td>A firing alert expanded in Alertmanager. The <code>grafana_url</code>, <code>logs_url</code>, <code>runbook_base</code> and <code>dashboard_url</code> annotations are all rendered as clickable links - each one pre-filtered to the specific job and cluster that triggered the alert.</td>
+<td>The Grafana dashboard reached via <code>dashboard_url</code> / <code>grafana_url</code>. The cluster variable is injected from the alert label, so the dashboard opens already scoped to the affected service.</td>
+</tr>
+<tr>
+<td><img src="assets/fakelogs.webp" alt="Log viewer filtered by listener label"></td>
+<td><img src="assets/fakerunbook.webp" alt="Runbook for the alert type"></td>
+</tr>
+<tr>
+<td>The log viewer reached via <code>logs_url</code>, pre-filtered to the listener or instance named in the alert. Errors and warnings from the window leading up to the alert are immediately visible.</td>
+<td>The runbook reached via <code>runbook_base</code>, specific to the alert type. Structured investigation steps give on-call engineers a starting point without needing to know the system from memory.</td>
+</tr>
+</tbody>
+</table>
+<br>
+<h2 id="some-other-useful-tools-and-utilities-for-this-type-of-thing">Some other useful tools and utilities for this type of thing</h2>
+<h3 id="amtool---alertmanager-tool--promtool---promtool"><a href="https://github.com/prometheus/alertmanager?tab=readme-ov-file#amtool">amtool</a> - alertmanager tool  <a href="https://prometheus.io/docs/prometheus/latest/installation/">promtool</a> - promtool</h3>
+<pre><code class="language-bash">amtool --alertmanager.url=https://alertstack.org:8443/alertmanager/ config show
+
+<span class="hljs-comment"># test the routes to see how they would resolve</span>
+amtool --alertmanager.url=https://alertstack.org:8443/alertmanager/ config routes
+
+<span class="hljs-comment"># test some routes with labels</span>
+amtool --verbose config routes <span class="hljs-built_in">test</span> --config.file=alertmanager/alertmanager.yml  severity=warning extra_slack_recipient_test=<span class="hljs-string">&quot;#alert-receiver-sre&quot;</span>
+
+<span class="hljs-comment"># validate rules syntax</span>
+<span class="hljs-built_in">cd</span> abcdef-alerts-staging-config
+promtool check rules alerts/alerts_configuration/**/*
+</code></pre>
+<h2 id="useful-links-and-resources">Useful links and resources</h2>
+<p><a href="https://jqlang.github.io/jq/download/">jq</a>    <a href="https://mikefarah.gitbook.io/yq">yq</a></p>
+<p><a href="https://github.com/prometheus/prom2json">prom2json</a></p>
+<p><a href="https://sre.google/workbook/index/">SRE Glossary</a></p>
+<p><a href="https://sre.google/books/">SRE Booklist</a></p>
+<p><a href="https://sre.google/sre-book/table-of-contents/">SRE at Google</a></p>
+<p><a href="https://sre.google/resources/practices-and-processes/incident-metrics-in-sre/">Incident Metrics in Google</a></p>
+<p><a href="https://research.google/pubs/the-site-reliability-workbook/">SRE Workbook</a>   <a href="https://sre.google/workbook/table-of-contents/">SRE Workbook</a></p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>
