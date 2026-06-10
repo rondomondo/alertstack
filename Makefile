@@ -7,7 +7,7 @@ SHELL         := /bin/bash
 
 # -- Infrastructure (OpenTofu / AWS) ------------------------------------------
 TERRAFORM_DIR := terraform
-AWS_PROFILE   ?= daveadmin
+AWS_PROFILE   ?= limitedsuperpowers
 REGION        ?= us-east-1
 OUT           ?=
 
