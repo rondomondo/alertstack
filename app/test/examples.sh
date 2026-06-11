@@ -47,8 +47,8 @@ check_metric_format() {
     }
 }
 
-logfy "Prerequisite: alertstack.org must resolve to 127.0.0.1 in /etc/hosts"
-logfy "  sudo sh -c 'echo \"127.0.0.1 alertstack.org\" >> /etc/hosts'"
+logfy "Prerequisite: ${ALERTSTACK_HOST} must resolve to 127.0.0.1 in /etc/hosts"
+logfy "  sudo sh -c 'echo \"127.0.0.1 ${ALERTSTACK_HOST}\" >> /etc/hosts'"
 
 logfy "Prerequisite: prom2json must be on PATH"
 logfy "  go install github.com/prometheus/prom2json/cmd/prom2json@latest"
@@ -71,7 +71,7 @@ envoy_response_code="503",envoy_response_code_class="5xx",\
 job="envoy",severity="critical",extra_slack_recipient_god="#alert-receiver",\
 pd_group="sre",instance="prx1.ams",cluster="eu-marley",deployment="marley",\
 network_region="EMEA",edge_loc="ams",region="eu-central-1-mgmt",servergroup="proxy",\
-frw_name="frw1.ams"} 6
+frw_name="frw1.ams",alertstack_host="${ALERTSTACK_HOST}"} 6
 EOM
 
 logfg "Validating test metric format..."
@@ -87,12 +87,12 @@ logfg "Processing prom format test files..."
 for test_file in "${SCRIPT_DIR}"/*.prom; do
     [[ -f "$test_file" ]] || continue
     logfg "  Creating metrics from ${test_file##*/}..."
-    send_metric "${ALERTSTACK_HTTPS}/create" "$(cat "$test_file")"
+    send_metric "${ALERTSTACK_HTTPS}/create" "$(sed "s/alertstack_host=\"alertstack\.org\"/alertstack_host=\"${ALERTSTACK_HOST}\"/g" "$test_file")"
 done
 
 logfg "Testing multi-metric creation..."
 if [[ -f "${SCRIPT_DIR}/multi_metric.prom" ]]; then
-    send_metric "${ALERTSTACK_HTTPS}/create" "$(cat "${SCRIPT_DIR}/multi_metric.prom")" "json"
+    send_metric "${ALERTSTACK_HTTPS}/create" "$(sed "s/alertstack_host=\"alertstack\.org\"/alertstack_host=\"${ALERTSTACK_HOST}\"/g" "${SCRIPT_DIR}/multi_metric.prom")" "json"
 fi
 
 logfg "Testing a metric with no labels..."

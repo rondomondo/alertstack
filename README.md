@@ -566,7 +566,7 @@ make infra-plan
 make infra-apply
 ```
 
-After `infra-apply` the instance public IP is printed. The stack starts automatically via `user-data.sh.tpl` — allow ~2 minutes for Docker images to pull and services to come up.
+After `infra-apply` the instance public IP is printed. The stack starts automatically via `user-data.sh.tpl` — allow ~10 minutes for Docker images to pull and services to come up.
 
 **Day-2 operations**
 

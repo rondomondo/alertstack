@@ -817,7 +817,7 @@ make infra-plan
 <span class="hljs-comment"># 4. Apply — provisions EC2, EIP, security group, IAM role, EBS volume</span>
 make infra-apply
 </code></pre>
-<p>After <code>infra-apply</code> the instance public IP is printed. The stack starts automatically via <code>user-data.sh.tpl</code> — allow ~2 minutes for Docker images to pull and services to come up.</p>
+<p>After <code>infra-apply</code> the instance public IP is printed. The stack starts automatically via <code>user-data.sh.tpl</code> — allow ~10 minutes for Docker images to pull and services to come up.</p>
 <p><strong>Day-2 operations</strong></p>
 <table>
 <thead>

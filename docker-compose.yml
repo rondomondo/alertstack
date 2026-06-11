@@ -59,7 +59,7 @@ services:
         volumes:
             - ./grafana/provisioning:/etc/grafana/provisioning:ro
             - ./grafana/dashboards:/etc/grafana/dashboards:ro
-            - grafana-data:/var/lib/grafana
+            - grafana_data:/var/lib/grafana
         ports:
             - '3000:3000' # Grafana UI
         networks:
@@ -131,4 +131,4 @@ networks:
 volumes:
     prom_data:
     alertmanager_data:
-    grafana-data:
+    grafana_data:

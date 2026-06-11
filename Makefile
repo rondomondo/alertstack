@@ -123,6 +123,7 @@ check-uv: ## Verify uv is available
 .PHONY: install-ubuntu
 install-ubuntu: ## Bootstrap a fresh Ubuntu host (run as root or with sudo)
 	apt-get update
+	apt-get upgrade -y
 	apt-get install -y make docker.io htop lsof docker-compose golang locate
 	snap install astral-uv --classic
 	updatedb
