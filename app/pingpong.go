@@ -397,7 +397,7 @@ func (s *Server) logsHandler(w http.ResponseWriter, r *http.Request) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Logs - %s</title>
+<title>Demo Logs - %s</title>
 <style>
 body{font-family:monospace;background:#0d1117;color:#c9d1d9;margin:0;padding:24px}
 h1{color:#58a6ff;font-size:1.2rem;margin-bottom:8px}
@@ -413,7 +413,7 @@ h1{color:#58a6ff;font-size:1.2rem;margin-bottom:8px}
 </head>
 <body>
 <h1>Log viewer - %s=<span style="color:#e3b341">%s</span></h1>
-<div class="meta">Demo log stream &mdash; alertstack.org &mdash; last 20 entries</div>
+<div class="meta">Demo log stream &mdash; alertstack &mdash; last 20 entries</div>
 `, label, labelKey, label)
 
 	now := time.Now()

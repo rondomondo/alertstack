@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-time setup: create S3 state and deploy buckets, upload redeploy.sh.
+# One-time setup: create S3 state bucket, then tofu apply creates the deploy bucket.
 # Run ONCE before `tofu init` and `tofu apply`.
 # Usage: ./scripts/bootstrap.sh [--profile <aws-profile>] [--region <region>]
 set -euo pipefail
@@ -7,7 +7,6 @@ set -euo pipefail
 REGION="us-east-1"
 AWS_PROFILE="${AWS_PROFILE:-limitedsuperpowers}"
 STATE_BUCKET="alertstack-tofu-state"
-DEPLOY_BUCKET="alertstack-deploy"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 while [[ $# -gt 0 ]]; do
@@ -20,7 +19,7 @@ done
 
 export AWS_PROFILE
 
-aws_cmd() { aws --output text --region "$REGION" "$@"; }
+aws_cmd() { aws --output text --no-cli-pager --region "$REGION" "$@"; }
 
 echo "==> Using AWS profile: $AWS_PROFILE"
 echo "    Region:             $REGION"
@@ -57,13 +56,9 @@ create_bucket() {
 }
 
 create_bucket "$STATE_BUCKET"
-create_bucket "$DEPLOY_BUCKET"
-
-echo "==> Uploading redeploy.sh to s3://$DEPLOY_BUCKET/scripts/redeploy.sh"
-aws_cmd s3 cp "$SCRIPT_DIR/redeploy.sh" "s3://$DEPLOY_BUCKET/scripts/redeploy.sh"
 
 echo ""
 echo "Bootstrap complete. Next steps:"
 echo "  1. cd terraform && tofu init"
 echo "  2. tofu plan"
-echo "  3. tofu apply"
+echo "  3. tofu apply  # creates deploy bucket, uploads redeploy.sh, then launches EC2"

@@ -76,7 +76,7 @@ resource "aws_instance" "alertstack" {
     deploy_bucket = var.deploy_bucket
   })
 
-  user_data_replace_on_change = true
+  user_data_replace_on_change = false
 
   root_block_device {
     volume_size           = var.volume_size
@@ -87,6 +87,8 @@ resource "aws_instance" "alertstack" {
   metadata_options {
     http_tokens = "required"
   }
+
+  depends_on = [null_resource.upload_redeploy_script]
 
   tags = {
     Name = "alertstack"

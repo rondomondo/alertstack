@@ -104,6 +104,7 @@ endpoints: ## Print stack service URLs (direct and via Envoy proxy)
 .PHONY: stack-up
 stack-up: ## Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)
 	@[ -n "$$(ls -A $(CERT_DIR) 2>/dev/null)" ] || $(MAKE) gen-cert
+	@$(MAKE) prom-set-host
 	$(DOCKER_COMPOSE) up --force-recreate --remove-orphans --detach -V
 	@$(MAKE) endpoints
 
@@ -324,6 +325,10 @@ flood: check-host ## Repeatedly run app/test/examples.sh (FLOOD_N=100 by default
 	  printf "$(CYAN)-- run $$i/$(FLOOD_N) --$(RESET)\n"; \
 	  bash $(APP_DIR)/test/examples.sh || exit 1; \
 	done
+
+.PHONY: prom-set-host
+prom-set-host: ## Rewrite alertstack_host in app/test/*.prom to match ALERTSTACK_HOST (default: $(ALERTSTACK_HOST))
+	@bash $(SCRIPTS_DIR)/set_prom_host.sh "$(ALERTSTACK_HOST)"
 
 
 # -- Infrastructure (OpenTofu / AWS) ------------------------------------------

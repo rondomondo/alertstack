@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "deploy" {
   bucket = var.deploy_bucket
-
+  force_destroy = true
   tags = {
     Name = "alertstack-deploy"
   }
@@ -10,7 +10,7 @@ resource "aws_s3_bucket_versioning" "deploy" {
   bucket = aws_s3_bucket.deploy.id
 
   versioning_configuration {
-    status = "Enabled"
+    status = "Disabled"
   }
 }
 
@@ -47,6 +47,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "deploy" {
     noncurrent_version_expiration {
       newer_noncurrent_versions = 3
       noncurrent_days           = 30
+    }
+  }
+}
+
+resource "null_resource" "upload_redeploy_script" {
+  depends_on = [aws_s3_bucket.deploy, aws_s3_bucket_policy.deploy]
+
+  triggers = {
+    script_hash = filemd5("${path.module}/../scripts/redeploy.sh")
+  }
+
+  provisioner "local-exec" {
+    command = "aws s3 cp ${path.module}/../scripts/redeploy.sh s3://${aws_s3_bucket.deploy.bucket}/scripts/redeploy.sh --region ${var.region}"
+    environment = {
+      AWS_PROFILE = var.aws_profile
     }
   }
 }
