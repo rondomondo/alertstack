@@ -37,6 +37,7 @@ echo "export PATH=$PATH" >> /root/.bashrc
 
 
 ALERTSTACK_HOST=alertstack.link
+export ALERTSTACK_HOST
 
 echo "export ALERTSTACK_HOST=$ALERTSTACK_HOST" >> /home/ubuntu/.bashrc
 echo "export ALERTSTACK_HOST=$ALERTSTACK_HOST" >> /root/.bashrc

@@ -104,7 +104,7 @@ endpoints: ## Print stack service URLs (direct and via Envoy proxy)
 .PHONY: stack-up
 stack-up: ## Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)
 	@[ -n "$$(ls -A $(CERT_DIR) 2>/dev/null)" ] || $(MAKE) gen-cert
-	@$(MAKE) prom-set-host
+	@$(MAKE) prom-set-host gen-cert
 	$(DOCKER_COMPOSE) up --force-recreate --remove-orphans --detach -V
 	@$(MAKE) endpoints
 
