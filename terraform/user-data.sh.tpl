@@ -19,17 +19,9 @@ apt-get install -y make docker.io htop lsof docker-compose golang locate awscli
 snap install astral-uv --classic
 updatedb
 
-
-# Install go tools: prom2json, amtool (mirrors: make install-tools)
-export HOME="/root"
 export GOPATH="/root/go"
 export GOCACHE="/root/.cache/go-build"
-export PATH="$GOPATH/bin:$PATH"
-
-GOTOOLCHAIN=auto go install github.com/prometheus/prom2json/cmd/prom2json@latest
-GOTOOLCHAIN=auto go install github.com/prometheus/alertmanager/cmd/amtool@latest
-/bin/cp /root/go/bin/* /usr/local/bin/
-
+export PATH="$GOPATH:$GOPATH/bin:$PATH"
 
 # Enable and start Docker
 systemctl enable docker
@@ -40,10 +32,11 @@ usermod -aG docker ubuntu
 git clone "$REPO_URL" "$APP_DIR"
 chown -R ubuntu:ubuntu "$APP_DIR"
 
-export ALERTSTACK_HOST=alertstack.dev
-
 echo "export PATH=$PATH" >> /home/ubuntu/.bashrc
 echo "export PATH=$PATH" >> /root/.bashrc
+
+
+ALERTSTACK_HOST=alertstack.link
 
 echo "export ALERTSTACK_HOST=$ALERTSTACK_HOST" >> /home/ubuntu/.bashrc
 echo "export ALERTSTACK_HOST=$ALERTSTACK_HOST" >> /root/.bashrc
@@ -55,6 +48,9 @@ aws s3 cp "s3://$DEPLOY_BUCKET/scripts/redeploy.sh" /usr/local/bin/redeploy.sh \
 
 chmod +x /usr/local/bin/redeploy.sh
 
+GOTOOLCHAIN=auto go install github.com/prometheus/prom2json/cmd/prom2json@latest && /bin/cp /root/go/bin/* /usr/local/bin/ &
+
+GOTOOLCHAIN=auto go install github.com/prometheus/alertmanager/cmd/amtool@latest && /bin/cp /root/go/bin/* /usr/local/bin/ &
 
 # Start the stack — sg docker ensures the group is active even in the same session
 sudo -u ubuntu sg docker -c "cd $APP_DIR && make stack-up" && echo "Bootstrap complete." \
