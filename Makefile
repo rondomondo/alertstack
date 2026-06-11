@@ -5,54 +5,6 @@
 MAKEFLAGS     += --no-print-directory
 SHELL         := /bin/bash
 
-# -- Infrastructure (OpenTofu / AWS) ------------------------------------------
-TERRAFORM_DIR := terraform
-AWS_PROFILE   ?= limitedsuperpowers
-REGION        ?= us-east-1
-OUT           ?=
-
-.PHONY: infra-bootstrap infra-init infra-plan infra-apply infra-destroy infra-fmt infra-validate infra-deploy infra-install-redeploy infra-ssh
-
-infra-bootstrap: ## One-time setup: create S3 state bucket and upload redeploy.sh
-	AWS_PROFILE=$(AWS_PROFILE) bash $(SCRIPTS_DIR)/bootstrap.sh --profile $(AWS_PROFILE) --region $(REGION)
-
-infra-init: ## tofu init (remote S3 backend)
-	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu init
-
-infra-plan: ## tofu plan (OUT=somefile.out to save plan)
-	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu plan $(if $(OUT),-out=$(OUT))
-
-infra-apply: ## tofu apply (OUT=somefile.out to apply saved plan)
-	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu apply $(if $(OUT),$(OUT))
-
-infra-destroy: ## tofu destroy (prompts for confirmation)
-	@echo "WARNING: this will destroy all infrastructure."
-	@read -p "Type 'yes' to confirm: " confirm && [ "$$confirm" = "yes" ] || (echo "Aborted."; exit 1)
-	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu destroy
-
-infra-fmt: ## tofu fmt -recursive
-	cd $(TERRAFORM_DIR) && tofu fmt -recursive
-
-infra-validate: ## tofu validate
-	cd $(TERRAFORM_DIR) && tofu validate
-
-infra-deploy: ## SSH to EC2 and run redeploy.sh (git pull + stack-up)
-	AWS_PROFILE=$(AWS_PROFILE) bash $(SCRIPTS_DIR)/deploy.sh --profile $(AWS_PROFILE)
-
-infra-install-redeploy: ## Copy redeploy.sh directly to EC2 (bypasses S3/user-data)
-	@ip=$$(cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu output -raw alertstack_aws_public_ip 2>/dev/null) && \
-	  echo "==> Installing redeploy.sh on $$ip" && \
-	  scp -i ~/.ssh/alertstack-ec2.pem -o StrictHostKeyChecking=no \
-	    $(SCRIPTS_DIR)/redeploy.sh ubuntu@"$$ip":/tmp/redeploy.sh && \
-	  ssh -i ~/.ssh/alertstack-ec2.pem -o StrictHostKeyChecking=no ubuntu@"$$ip" \
-	    "sudo mv /tmp/redeploy.sh /usr/local/bin/redeploy.sh && sudo chmod +x /usr/local/bin/redeploy.sh" && \
-	  echo "Done. Run: make infra-deploy"
-
-infra-ssh: ## SSH into the EC2 instance
-	@ip=$$(cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu output -raw alertstack_aws_public_ip 2>/dev/null) && \
-	  echo "Connecting to $$ip..." && \
-	  ssh -i ~/.ssh/alertstack-ec2.pem ubuntu@"$$ip"
-
 
 # Snapshot env vars that the user may have exported before loading .env,
 # so they can override the .env defaults.
@@ -110,15 +62,122 @@ KEY         := $(CERT_DIR)/$(CERT_DOMAIN).key
 # -- Help -----------------------------------------------------
 .PHONY: help
 help: ## Show this help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(firstword $(MAKEFILE_LIST)) \
-		| awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-22s$(RESET) %s\n", $$1, $$2}'
+	@awk 'BEGIN {FS = ":.*##"; printf "Usage: make \033[36m<target>\033[0m\n"} \
+	  /^##@/ { printf "\n\033[1m%s\033[0m\n", substr($$0,5) } \
+	  /^[a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2 }' \
+	  $(MAKEFILE_LIST)
 
-		
+
+##@ AlertStack
+
+# -- Stack ----------------------------------------------------
+.PHONY: endpoints
+endpoints: ## Print stack service URLs (direct and via Envoy proxy)
+	@printf "$(GREEN)Stack ready (direct):$(RESET)\n"
+	@printf "  Prometheus:   http://localhost:9090\n"
+	@printf "  Alertmanager: http://localhost:9093\n"
+	@printf "  Grafana:      http://localhost:3000\n"
+	@printf "  pingpong:     http://localhost:8090\n"
+	@printf "$(GREEN)Stack Envoy (HTTPS via proxy):$(RESET)\n"
+	@printf "  Prometheus:   https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/prometheus\n"
+	@printf "  Alertmanager: https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/alertmanager\n"
+	@printf "  Grafana:      https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/grafana\n"
+	@printf "  pingpong:     https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/\n"
+	@printf "$(CYAN)HTTP on :${ENVOY_PORT:-8080} redirects to HTTPS on :${ENVOY_PORT_TLS}.$(RESET)\n"
+	@printf "\n$(BOLD)Accessing via hostname$(RESET)\n"
+	@$(MAKE) check-host
+# 	@if [ -n "$(_ENV_ALERTSTACK_HOST)" ]; then \
+# 	  src="environment"; \
+# 	elif grep -qs "^ALERTSTACK_HOST" .env 2>/dev/null; then \
+# 	  src=".env"; \
+# 	else \
+# 	  src="Makefile default"; \
+# 	fi; \
+# 	printf "  $(CYAN)ALERTSTACK_HOST$(RESET) = $(BOLD)${ALERTSTACK_HOST}$(RESET)  (set via $$src)\n"
+# 	@public_ip=$$(curl -sf --max-time 3 ifconfig.me 2>/dev/null || echo "unavailable"); \
+# 	printf "  Public IP: $(BOLD)$$public_ip$(RESET)\n"; \
+# 	if [ "$$public_ip" != "unavailable" ]; then \
+# 	  printf "\n  If $(CYAN)${ALERTSTACK_HOST}$(RESET) is not in DNS, add it to /etc/hosts:\n"; \
+# 	  printf "    $(YELLOW)sudo sh -c 'echo \"$$public_ip ${ALERTSTACK_HOST}\" >> /etc/hosts'$(RESET)\n"; \
+# 	fi
+
+.PHONY: stack-up
+stack-up: ## Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)
+	@[ -n "$$(ls -A $(CERT_DIR) 2>/dev/null)" ] || $(MAKE) gen-cert
+	$(DOCKER_COMPOSE) up --force-recreate --remove-orphans --detach -V
+	@$(MAKE) endpoints
+
+.PHONY: stack-down
+stack-down: ## Stop the alertstack
+	$(DOCKER_COMPOSE) down
+
+.PHONY: stack-logs
+stack-logs: ## Tail logs from all stack services
+	$(DOCKER_COMPOSE) logs -f
+
+.PHONY: stack-clean
+stack-clean: ## Tear down the stack and delete all named volumes
+	$(DOCKER_COMPOSE) down -v
+	@printf "$(GREEN)Stack stopped and volumes removed.$(RESET)\n"
+
+.PHONY: stack-reset
+stack-reset: stack-clean ## Wipe stack volumes and restart fresh
+	$(MAKE) stack-up
+
+
+##@ Setup ss
+
 # -- System checks --------------------------------------------
 .PHONY: check-uv
 check-uv: ## Verify uv is available
 	@command -v $(UV) >/dev/null 2>&1 || \
 	  (printf "$(RED)ERROR:$(RESET) uv not found. Install: https://docs.astral.sh/uv/\n"; exit 1)
+
+
+.PHONY: resolve-host
+resolve-host:
+	$(eval RESOLVED := $(shell ping -c1 -W1 $(ALERTSTACK_HOST) 2>/dev/null | awk -F'[()]' '/^PING/{print $$2; exit}'))
+	@true
+
+.PHONY: public-ip
+public-ip:
+	$(eval PUBLIC_IP := $(shell curl -sf --max-time 3 ifconfig.me 2>/dev/null || echo ""))
+	@true
+
+.PHONY: check-host
+check-host: resolve-host public-ip ## Verify ALERTSTACK_HOST is resolvable; diagnose DNS/hosts and show variable source
+	@if [ -n "$(_ENV_ALERTSTACK_HOST)" ]; then \
+	  src="environment variable"; \
+	elif grep -qs "^ALERTSTACK_HOST" .env 2>/dev/null; then \
+	  src=".env file"; \
+	else \
+	  src="Makefile default"; \
+	fi; \
+	printf "$(CYAN)ALERTSTACK_HOST$(RESET) = $(BOLD)$(ALERTSTACK_HOST)$(RESET)  (source: $$src)\n\n"; \
+	if [ -z "$(RESOLVED)" ]; then \
+	  printf "$(RED)ERROR:$(RESET) $(BOLD)$(ALERTSTACK_HOST)$(RESET) does not resolve.\n\n"; \
+	  printf "$(BOLD)Fix options:$(RESET)\n"; \
+	  printf "  $(CYAN)Running locally?$(RESET)\n"; \
+	  printf "    sudo sh -c 'echo \"127.0.0.1 $(ALERTSTACK_HOST)\" >> /etc/hosts'\n\n"; \
+	  printf "  $(CYAN)Running on a remote server?$(RESET)\n"; \
+	  if [ -n "$(PUBLIC_IP)" ]; then \
+	    printf "    Option A — DNS:   add an A record  $(ALERTSTACK_HOST) -> $(PUBLIC_IP)\n"; \
+	    printf "    Option B — hosts: sudo sh -c 'echo \"$(PUBLIC_IP) $(ALERTSTACK_HOST)\" >> /etc/hosts'\n"; \
+	    printf "\n    Public IP of this machine: $(BOLD)$(PUBLIC_IP)$(RESET)\n"; \
+	  else \
+	    printf "    Option A — DNS:   add an A record  $(ALERTSTACK_HOST) -> <your-server-ip>\n"; \
+	    printf "    Option B — hosts: sudo sh -c 'echo \"<your-server-ip> $(ALERTSTACK_HOST)\" >> /etc/hosts'\n"; \
+	    printf "\n    $(YELLOW)Could not detect public IP (no internet access?).$(RESET)\n"; \
+	  fi; \
+	else \
+	  if grep -qs "$(ALERTSTACK_HOST)" /etc/hosts 2>/dev/null; then \
+	    where="/etc/hosts"; \
+	  else \
+	    where="DNS"; \
+	  fi; \
+	  printf "$(GREEN)OK:$(RESET) $(BOLD)$(ALERTSTACK_HOST)$(RESET) resolves to $(BOLD)$(RESOLVED)$(RESET)  (via $$where)\n"; \
+	fi
+	@true
 
 .PHONY: install-ubuntu
 install-ubuntu: ## Bootstrap a fresh Ubuntu host (run as root or with sudo)
@@ -150,6 +209,8 @@ clean-certs: ## Remove generated TLS certificates
 	@printf "$(CYAN)Removing$(RESET) $(CERT_DIR)/...\n"
 	@rm -f $(CERT_DIR)/*.crt $(CERT_DIR)/*.key 2>/dev/null || true
 	@printf "  $(GREEN)ok$(RESET)\n"
+
+##@ Docker
 
 # -- Docker image ---------------------------------------------
 .PHONY: docker-build
@@ -185,58 +246,8 @@ docker-clean: ## Remove the pingpong Docker image
 .PHONY: docker-reset
 docker-reset: docker-stop docker-clean clean ## Stop container, remove image, and clean all build artifacts
 
-# -- Stack ----------------------------------------------------
-.PHONY: endpoints
-endpoints: ## Print stack service URLs (direct and via Envoy proxy)
-	@printf "$(GREEN)Stack ready (direct):$(RESET)\n"
-	@printf "  Prometheus:   http://localhost:9090\n"
-	@printf "  Alertmanager: http://localhost:9093\n"
-	@printf "  Grafana:      http://localhost:3000\n"
-	@printf "  pingpong:     http://localhost:8090\n"
-	@printf "$(GREEN)Stack Envoy (HTTPS via proxy):$(RESET)\n"
-	@printf "  Prometheus:   https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/prometheus\n"
-	@printf "  Alertmanager: https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/alertmanager\n"
-	@printf "  Grafana:      https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/grafana\n"
-	@printf "  pingpong:     https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/\n"
-	@printf "$(CYAN)HTTP on :${ENVOY_PORT:-8080} redirects to HTTPS on :${ENVOY_PORT_TLS}.$(RESET)\n"
-	@printf "\n$(BOLD)Accessing via hostname$(RESET)\n"
-	@if [ -n "$(_ENV_ALERTSTACK_HOST)" ]; then \
-	  src="environment"; \
-	elif grep -qs "^ALERTSTACK_HOST" .env 2>/dev/null; then \
-	  src=".env"; \
-	else \
-	  src="Makefile default"; \
-	fi; \
-	printf "  $(CYAN)ALERTSTACK_HOST$(RESET) = $(BOLD)${ALERTSTACK_HOST}$(RESET)  (set via $$src)\n"
-	@public_ip=$$(curl -sf --max-time 3 ifconfig.me 2>/dev/null || echo "unavailable"); \
-	printf "  Public IP: $(BOLD)$$public_ip$(RESET)\n"; \
-	if [ "$$public_ip" != "unavailable" ]; then \
-	  printf "\n  If $(CYAN)${ALERTSTACK_HOST}$(RESET) is not in DNS, add it to /etc/hosts:\n"; \
-	  printf "    $(YELLOW)sudo sh -c 'echo \"$$public_ip ${ALERTSTACK_HOST}\" >> /etc/hosts'$(RESET)\n"; \
-	fi
 
-.PHONY: stack-up
-stack-up: ## Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)
-	@[ -n "$$(ls -A $(CERT_DIR) 2>/dev/null)" ] || $(MAKE) gen-cert
-	$(DOCKER_COMPOSE) up --force-recreate --remove-orphans --detach -V
-	@$(MAKE) endpoints
-
-.PHONY: stack-down
-stack-down: ## Stop the alertstack
-	$(DOCKER_COMPOSE) down
-
-.PHONY: stack-logs
-stack-logs: ## Tail logs from all stack services
-	$(DOCKER_COMPOSE) logs -f
-
-.PHONY: stack-clean
-stack-clean: ## Tear down the stack and delete all named volumes
-	$(DOCKER_COMPOSE) down -v
-	@printf "$(GREEN)Stack stopped and volumes removed.$(RESET)\n"
-
-.PHONY: stack-reset
-stack-reset: stack-clean ## Wipe stack volumes and restart fresh
-	$(MAKE) stack-up
+##@ Admin
 
 # -- Dev tools ------------------------------------------------
 .PHONY: install-tools
@@ -259,7 +270,7 @@ test: ## Run Go unit tests for the pingpong server
 
 # -- Examples / smoke tests -----------------------------------
 .PHONY: examples
-examples: ## Print copy-pasteable curl examples for the running stack
+examples: check-host ## Print copy-pasteable curl examples for the running stack
 	@printf "\n$(BOLD)Prerequisites$(RESET)\n"
 	@printf "  1. $(CYAN)${ALERTSTACK_HOST}$(RESET) resolves to 127.0.0.1 -- add to /etc/hosts if missing:\n"
 	@printf "       sudo sh -c 'echo \"127.0.0.1 ${ALERTSTACK_HOST}\" >> /etc/hosts'\n\n"
@@ -305,9 +316,83 @@ examples: ## Print copy-pasteable curl examples for the running stack
 	@printf "$(BOLD)Run the full integration test suite$(RESET)\n"
 	@printf "  bash $(APP_DIR)/test/examples.sh\n\n"
 
+FLOOD_N ?= 10
+
+.PHONY: flood
+flood: check-host ## Repeatedly run app/test/examples.sh (FLOOD_N=100 by default)
+	@for i in $$(seq 1 $(FLOOD_N)); do \
+	  printf "$(CYAN)-- run $$i/$(FLOOD_N) --$(RESET)\n"; \
+	  bash $(APP_DIR)/test/examples.sh || exit 1; \
+	done
+
+
+# -- Infrastructure (OpenTofu / AWS) ------------------------------------------
+TERRAFORM_DIR := terraform
+AWS_PROFILE   ?= limitedsuperpowers
+REGION        ?= us-east-1
+OUT           ?=
+
+##@ Infrastructure
+
+.PHONY: infra-bootstrap infra-init infra-plan infra-apply infra-destroy infra-fmt infra-validate infra-deploy infra-install-redeploy infra-ssh
+
+infra-bootstrap: ## One-time setup: create S3 state bucket and upload redeploy.sh
+	AWS_PROFILE=$(AWS_PROFILE) bash $(SCRIPTS_DIR)/bootstrap.sh --profile $(AWS_PROFILE) --region $(REGION)
+
+infra-init: ## tofu init (remote S3 backend)
+	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu init
+
+infra-plan: ## tofu plan (OUT=somefile.out to save plan)
+	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu plan $(if $(OUT),-out=$(OUT))
+
+infra-apply: ## tofu apply (OUT=somefile.out to apply saved plan)
+	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu apply $(if $(OUT),$(OUT))
+
+infra-destroy: ## tofu destroy (prompts for confirmation)
+	@echo "WARNING: this will destroy all infrastructure."
+	@read -p "Type 'yes' to confirm: " confirm && [ "$$confirm" = "yes" ] || (echo "Aborted."; exit 1)
+	cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu destroy
+
+infra-fmt: ## tofu fmt -recursive
+	cd $(TERRAFORM_DIR) && tofu fmt -recursive
+
+infra-validate: ## tofu validate
+	cd $(TERRAFORM_DIR) && tofu validate
+
+infra-deploy: ## SSH to EC2 and run redeploy.sh (git pull + stack-up)
+	AWS_PROFILE=$(AWS_PROFILE) bash $(SCRIPTS_DIR)/deploy.sh --profile $(AWS_PROFILE)
+
+infra-install-redeploy: ## Copy redeploy.sh directly to EC2 (bypasses S3/user-data)
+	@ip=$$(cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu output -raw alertstack_aws_public_ip 2>/dev/null) && \
+	  echo "==> Installing redeploy.sh on $$ip" && \
+	  scp -i ~/.ssh/alertstack-ec2.pem -o StrictHostKeyChecking=no \
+	    $(SCRIPTS_DIR)/redeploy.sh ubuntu@"$$ip":/tmp/redeploy.sh && \
+	  ssh -i ~/.ssh/alertstack-ec2.pem -o StrictHostKeyChecking=no ubuntu@"$$ip" \
+	    "sudo mv /tmp/redeploy.sh /usr/local/bin/redeploy.sh && sudo chmod +x /usr/local/bin/redeploy.sh" && \
+	  echo "Done. Run: make infra-deploy"
+
+infra-ssh: ## SSH into the EC2 instance
+	@ip=$$(cd $(TERRAFORM_DIR) && AWS_PROFILE=$(AWS_PROFILE) tofu output -raw alertstack_aws_public_ip 2>/dev/null) && \
+	  echo "Connecting to $$ip..." && \
+	  ssh -i ~/.ssh/alertstack-ec2.pem ubuntu@"$$ip"
+
+
+
+
+##@ Cleanup
+
 # -- Clean ----------------------------------------------------
 .PHONY: clean
 clean: clean-certs ## Remove build artifacts
 	@printf "$(CYAN)Cleaning$(RESET) build artifacts...\n"
 	@rm -f $(APP_DIR)/pingpong $(APP_DIR)/app
 	@printf "  $(GREEN)ok$(RESET)\n"
+
+.PHONY: clean-venv
+clean-venv: ## Remove the .venv directory
+	@printf "$(CYAN)Removing$(RESET) .venv...\n"
+	@rm -rf .venv
+	@printf "  $(GREEN)ok$(RESET)\n"
+
+.PHONY: clean-all
+clean-all: stack-clean docker-clean clean clean-venv ## Tear down stack+volumes, remove Docker image, and clean all build artifacts
