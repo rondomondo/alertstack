@@ -100,9 +100,9 @@ receivers:
           resolved: '{{ template "pagerduty.god.instances" .Alerts.Resolved }}'
   - name: default-receiver-god
     webhook_configs:
-      - url: http://host.docker.internal:8090/webhook
+      - url: http://pingpong:8090/webhook
         send_resolved: true
   - name: default-receiver
     webhook_configs:
-      - url: http://host.docker.internal:8090/webhook
+      - url: http://pingpong:8090/webhook
         send_resolved: true

@@ -603,7 +603,7 @@ func (s *Server) createNewMetric(f *MetricInfo) MetricLinesInfo {
 	for _, item := range f.Metrics {
 		value, err := strconv.ParseFloat(item.Value, 64)
 		if err != nil {
-			logger.Printf("Error parsing metric value: %v", err)
+			logger.Printf("Error parsing metric %s value: %v", f.Name, err)
 			continue
 		}
 

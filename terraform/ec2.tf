@@ -28,7 +28,7 @@ resource "aws_security_group" "alertstack" {
   }
 
   ingress {
-    description = "Pingpong HTTPS"
+    description = "Pingpong HTTP"
     from_port   = 8090
     to_port     = 8090
     protocol    = "tcp"
