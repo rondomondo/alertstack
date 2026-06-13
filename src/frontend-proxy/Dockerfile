@@ -8,6 +8,8 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+ENV ENVOY_ADMIN_PORT=10000
+
 USER envoy
 
 WORKDIR /home/envoy

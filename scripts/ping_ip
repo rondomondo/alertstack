@@ -1,0 +1,5 @@
+_ping_ip() {
+  local host=$1
+  local flag; flag=$(uname -s | grep -q Darwin && echo "-t1" || echo "-W1")
+  ping -c1 $flag "$host" 2>/dev/null | awk -F'[()]' '/^PING/{print $2; exit}' || echo "unreachable"
+}

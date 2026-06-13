@@ -45,11 +45,14 @@ SCRIPTS_DIR := scripts
 IMAGE_NAME     := alertstack/pingpong
 IMAGE_TAG      ?= latest
 GF_ADMIN_USER  ?= admin
-GF_ADMIN_PASSWORD ?= grafana
+GF_ADMIN_PASSWORD ?= supersecret
 
 
+PROXY_IMAGE_NAME := rondomondo/alertstack-frontend-proxy
 ALERTSTACK_HOST  ?= alertstack.org
 ENVOY_PORT_TLS   ?= 8443
+ENVOY_ADMIN_PORT ?= 10000
+ENVOY_ADMIN_HOST ?= admin.$(ALERTSTACK_HOST)
 #ENVOY_PORT ?= 8080
 
 # -- Certificates ---------------------------------------------
@@ -84,22 +87,13 @@ endpoints: ## Print stack service URLs (direct and via Envoy proxy)
 	@printf "  Grafana:      https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/grafana\n"
 	@printf "  pingpong:     https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/\n"
 	@printf "$(CYAN)HTTP on :${ENVOY_PORT:-8080} redirects to HTTPS on :${ENVOY_PORT_TLS}.$(RESET)\n"
+	@printf "$(GREEN)Envoy admin (HTTPS :$(ENVOY_ADMIN_PORT)):$(RESET)\n"
+	@printf "  UI:           https://admin.$(ALERTSTACK_HOST):$(ENVOY_ADMIN_PORT)/\n"
+	@printf "  Stats:        https://admin.$(ALERTSTACK_HOST):$(ENVOY_ADMIN_PORT)/stats/prometheus\n"
+	@printf "  Clusters:     https://admin.$(ALERTSTACK_HOST):$(ENVOY_ADMIN_PORT)/clusters\n"
+	@printf "  Config dump:  https://admin.$(ALERTSTACK_HOST):$(ENVOY_ADMIN_PORT)/config_dump\n"
 	@printf "\n$(BOLD)Accessing via hostname$(RESET)\n"
 	@$(MAKE) check-host
-# 	@if [ -n "$(_ENV_ALERTSTACK_HOST)" ]; then \
-# 	  src="environment"; \
-# 	elif grep -qs "^ALERTSTACK_HOST" .env 2>/dev/null; then \
-# 	  src=".env"; \
-# 	else \
-# 	  src="Makefile default"; \
-# 	fi; \
-# 	printf "  $(CYAN)ALERTSTACK_HOST$(RESET) = $(BOLD)${ALERTSTACK_HOST}$(RESET)  (set via $$src)\n"
-# 	@public_ip=$$(curl -sf --max-time 3 ifconfig.me 2>/dev/null || echo "unavailable"); \
-# 	printf "  Public IP: $(BOLD)$$public_ip$(RESET)\n"; \
-# 	if [ "$$public_ip" != "unavailable" ]; then \
-# 	  printf "\n  If $(CYAN)${ALERTSTACK_HOST}$(RESET) is not in DNS, add it to /etc/hosts:\n"; \
-# 	  printf "    $(YELLOW)sudo sh -c 'echo \"$$public_ip ${ALERTSTACK_HOST}\" >> /etc/hosts'$(RESET)\n"; \
-# 	fi
 
 .PHONY: stack-up
 stack-up: ## Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)
@@ -107,6 +101,11 @@ stack-up: ## Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)
 	@$(MAKE) prom-set-host gen-cert
 	$(DOCKER_COMPOSE) up --force-recreate --remove-orphans --detach -V
 	@$(MAKE) endpoints
+
+.PHONY: proxy-rebuild
+proxy-rebuild: ## Force rebuild the frontend-proxy image and recreate the container (use after envoy.tmpl.yaml changes)
+	$(DOCKER_COMPOSE) build --no-cache frontend-proxy
+	$(DOCKER_COMPOSE) up -d --force-recreate frontend-proxy
 
 .PHONY: stack-down
 stack-down: ## Stop the alertstack
@@ -126,7 +125,7 @@ stack-reset: stack-clean ## Wipe stack volumes and restart fresh
 	$(MAKE) stack-up
 
 
-##@ Setup ss
+##@ Setup
 
 # -- System checks --------------------------------------------
 .PHONY: check-uv
@@ -202,7 +201,7 @@ install: check-uv ## Install dependencies via uv
 # -- Certificates ---------------------------------------------
 .PHONY: gen-cert
 gen-cert: check-uv ## Generate self-signed TLS cert (CERT_DOMAIN=$(ALERTSTACK_HOST))
-	$(GEN_CERT) --domain $(CERT_DOMAIN) --cert-dir $(CERT_DIR)
+	$(GEN_CERT) --domain $(CERT_DOMAIN) --wildcard --cert-dir $(CERT_DIR)
 	@printf "$(GREEN)Certificate written to$(RESET) $(CERT_DIR)/\n"
 
 .PHONY: clean-certs
@@ -242,6 +241,7 @@ docker-stop: ## Stop and remove the running pingpong container
 .PHONY: docker-clean
 docker-clean: ## Remove the pingpong Docker image
 	docker rmi $(IMAGE_NAME):$(IMAGE_TAG) 2>/dev/null || true
+	docker rmi $(PROXY_IMAGE_NAME):$(IMAGE_TAG) 2>/dev/null || true
 	@printf "  $(GREEN)ok$(RESET)\n"
 
 .PHONY: docker-reset
@@ -400,4 +400,4 @@ clean-venv: ## Remove the .venv directory
 	@printf "  $(GREEN)ok$(RESET)\n"
 
 .PHONY: clean-all
-clean-all: stack-clean docker-clean clean clean-venv ## Tear down stack+volumes, remove Docker image, and clean all build artifacts
+clean-all: stack-clean docker-clean docker-reset clean clean-venv ## Tear down stack+volumes, remove Docker image, and clean all build artifacts

@@ -22,7 +22,15 @@ else
 fi
 
 log "Restarting stack"
-sudo -u ubuntu bash -lc "cd $APP_DIR && make stack-down 2>/dev/null || true"
-sudo -u ubuntu bash -lc "cd $APP_DIR && make stack-up"
+ALERTSTACK_HOST=$(grep -oP '(?<=export ALERTSTACK_HOST=)\S+' /home/ubuntu/.bashrc | tail -1)
+if [[ -z "$ALERTSTACK_HOST" ]]; then
+  log "WARNING: ALERTSTACK_HOST not found in /home/ubuntu/.bashrc, falling back to .env"
+  sudo -u ubuntu bash -lc "cd $APP_DIR && make stack-down 2>/dev/null || true"
+  sudo -u ubuntu bash -lc "cd $APP_DIR && make stack-up"
+else
+  log "Using ALERTSTACK_HOST=$ALERTSTACK_HOST (from /home/ubuntu/.bashrc)"
+  sudo -u ubuntu bash -lc "cd $APP_DIR && make stack-down ALERTSTACK_HOST=$ALERTSTACK_HOST 2>/dev/null || true"
+  sudo -u ubuntu bash -lc "cd $APP_DIR && make stack-up ALERTSTACK_HOST=$ALERTSTACK_HOST"
+fi
 
 log "Redeploy complete."

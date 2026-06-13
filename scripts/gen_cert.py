@@ -26,13 +26,14 @@ except ImportError:
     sys.exit(1)
 
 
-def generate(domain: str, cert_dir: Path, days: int = 90) -> tuple[Path, Path]:
+def generate(domain: str, cert_dir: Path, days: int = 90, wildcard: bool = False) -> tuple[Path, Path]:
     """Generate a self-signed cert and key for domain, writing to cert_dir.
 
     Args:
         domain: CN / SAN hostname for the certificate.
         cert_dir: Directory to write the .crt and .key files.
         days: Certificate validity period in days.
+        wildcard: Also add *.domain as a SAN entry.
 
     Returns:
         Tuple of (cert_path, key_path).
@@ -51,6 +52,8 @@ def generate(domain: str, cert_dir: Path, days: int = 90) -> tuple[Path, Path]:
     ])
 
     san_entries: list[x509.GeneralName] = [x509.DNSName(domain)]
+    if wildcard:
+        san_entries.append(x509.DNSName(f"*.{domain}"))
     if domain == "localhost":
         san_entries.append(x509.IPAddress(ipaddress.IPv4Address("127.0.0.1")))
 
@@ -89,12 +92,14 @@ def main() -> None:
     parser.add_argument("-d", "--domain", required=True, help="certificate domain / CN")
     parser.add_argument("--cert-dir", default="app/certs", help="output directory for cert + key")
     parser.add_argument("--days", type=int, default=90, help="validity period in days")
+    parser.add_argument("--wildcard", action="store_true", help="also add *.domain as a SAN entry")
     args = parser.parse_args()
 
     cert_path, key_path = generate(
         domain=args.domain,
         cert_dir=Path(args.cert_dir),
         days=args.days,
+        wildcard=args.wildcard,
     )
     print(f"cert: {cert_path}")
     print(f"key:  {key_path}")
