@@ -12,17 +12,9 @@ resource "aws_security_group" "alertstack" {
   }
 
   ingress {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
+    description = "Grafana HTTP"
+    from_port   = 3000
+    to_port     = 3000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -36,9 +28,41 @@ resource "aws_security_group" "alertstack" {
   }
 
   ingress {
+    description = "Pingpong HTTPS"
+    from_port   = 8090
+    to_port     = 8090
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     description = "Envoy HTTPS"
     from_port   = 8443
     to_port     = 8443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Prometheus"
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "AlertManager"
+    from_port   = 9093
+    to_port     = 9093
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Envoy Admin HTTPS"
+    from_port   = 10000
+    to_port     = 10000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -53,7 +77,7 @@ resource "aws_security_group" "alertstack" {
 
 resource "aws_instance" "alertstack" {
   ami                    = var.ami
-  instance_type          = "t3.large"
+  instance_type          = var.instance_type
 
   instance_market_options {
     market_type = "spot"

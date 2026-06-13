@@ -8,7 +8,7 @@ groups:
           severity: critical
           extra_slack_recipient_god: "#alert-receiver"
           pd_group: sre
-          sn_group: SRE - NOC
+          sn_group: who cares
         annotations:
           summary: "Envoy upstream cluster 5xx spike on {{$labels.cluster_name}}"
           description: "Cluster {{$labels.cluster_name}} recorded {{$value}} 5xx responses (code {{$labels.envoy_response_code}})"
@@ -57,8 +57,7 @@ groups:
         labels:
           severity: critical
           extra_slack_recipient_god: "#alert-receiver"
-          pd_group: sre
-          sn_group: SRE - NOC
+          pd_group: envoy-pagerduty-group
         annotations:
           summary: "Envoy cluster {{$labels.cluster_name}} has no active upstream connections"
           description: "Cluster {{$labels.cluster_name}} reports zero active upstream connections - the backend may be down or unreachable"

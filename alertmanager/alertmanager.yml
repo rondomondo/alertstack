@@ -21,12 +21,12 @@ inhibit_rules:
     equal: ["edge_pop"]
 route:
   # wait at least this long before sending a new set of group alerts
-  group_wait: 30s
+  group_wait: 10s
   # wait this long after sending the first groups of alerts to send more
-  group_interval: 60s
+  group_interval: 20s
   # wait this long before resending any alerts again
   repeat_interval: 90s
-  group_by: [alertname, instance, cluster]
+  group_by: [alertname, pop_name, cluster]
   receiver: "default-receiver"
   routes:
     - receiver: "slack-receiver-god"
@@ -103,3 +103,6 @@ receivers:
       - url: http://host.docker.internal:8090/webhook
         send_resolved: true
   - name: default-receiver
+    webhook_configs:
+      - url: http://host.docker.internal:8090/webhook
+        send_resolved: true
