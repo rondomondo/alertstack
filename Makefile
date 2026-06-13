@@ -42,7 +42,7 @@ APP_DIR    := app
 SCRIPTS_DIR := scripts
 
 # -- Docker ---------------------------------------------------
-IMAGE_NAME     := alertstack/pingpong
+IMAGE_NAME     := rondomondo/pingpong
 IMAGE_TAG      ?= latest
 GF_ADMIN_USER  ?= admin
 GF_ADMIN_PASSWORD ?= supersecret

@@ -720,7 +720,7 @@
             "targets": [
                 {
                     "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                    "expr": "sum(envoy_cluster_upstream_rq_total{cluster=~\"$cluster\", envoy_response_code_class=\"5xx\"})",
+                    "expr": "sum(envoy_cluster_upstream_rq_total{cluster_name=~\"$cluster\", envoy_response_code_class=\"5xx\"})",
                     "legendFormat": "5xx",
                     "refId": "A"
                 }
@@ -759,7 +759,7 @@
             "targets": [
                 {
                     "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                    "expr": "sum(envoy_cluster_upstream_rq_total{cluster=~\"$cluster\", envoy_response_code_class=\"4xx\"})",
+                    "expr": "sum(envoy_cluster_upstream_rq_total{cluster_name=~\"$cluster\", envoy_response_code_class=\"4xx\"})",
                     "legendFormat": "4xx",
                     "refId": "A"
                 }
@@ -798,7 +798,7 @@
             "targets": [
                 {
                     "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                    "expr": "sum(envoy_cluster_upstream_cx_active{cluster=~\"$cluster\"})",
+                    "expr": "sum(envoy_cluster_upstream_cx_active{cluster_name=~\"$cluster\"})",
                     "legendFormat": "active cx",
                     "refId": "A"
                 }
@@ -838,7 +838,7 @@
             "targets": [
                 {
                     "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                    "expr": "sum(envoy_cluster_upstream_rq_total{cluster=~\"$cluster\"})",
+                    "expr": "sum(envoy_cluster_upstream_rq_total{cluster_name=~\"$cluster\"})",
                     "legendFormat": "total",
                     "refId": "A"
                 }
@@ -888,7 +888,7 @@
             "targets": [
                 {
                     "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                    "expr": "envoy_cluster_upstream_rq_total{cluster=~\"$cluster\"}",
+                    "expr": "envoy_cluster_upstream_rq_total{cluster_name=~\"$cluster\"}",
                     "legendFormat": "{{cluster_name}} / {{envoy_response_code_class}}",
                     "refId": "A"
                 }
@@ -929,7 +929,7 @@
             "targets": [
                 {
                     "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                    "expr": "envoy_cluster_upstream_cx_active{cluster=~\"$cluster\"}",
+                    "expr": "envoy_cluster_upstream_cx_active{cluster_name=~\"$cluster\"}",
                     "legendFormat": "{{cluster_name}} / {{instance}}",
                     "refId": "A"
                 }
@@ -1065,12 +1065,320 @@
                     "refId": "A"
                 }
             ]
+        },
+
+        {
+            "collapsed": false,
+            "gridPos": { "h": 1, "w": 24, "x": 0, "y": 62 },
+            "id": 106,
+            "title": "Gen AI",
+            "type": "row"
+        },
+
+        {
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "bars",
+                        "fillOpacity": 80,
+                        "lineWidth": 1,
+                        "showPoints": "never",
+                        "spanNulls": false,
+                        "stacking": { "group": "A", "mode": "normal" }
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 63 },
+            "id": 300,
+            "options": {
+                "legend": {
+                    "calcs": ["sum"],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": { "mode": "multi", "sort": "desc" }
+            },
+            "title": "Token usage by provider / model",
+            "type": "timeseries",
+            "targets": [
+                {
+                    "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                    "expr": "sum by (gen_ai_provider_name, gen_ai_request_model, gen_ai_token_type) (gen_ai_client_token_usage_total)",
+                    "legendFormat": "{{gen_ai_provider_name}} / {{gen_ai_request_model}} ({{gen_ai_token_type}})",
+                    "refId": "A"
+                }
+            ]
+        },
+
+        {
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "palette-classic" },
+                    "custom": {
+                        "drawStyle": "line",
+                        "fillOpacity": 10,
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "showPoints": "auto",
+                        "spanNulls": false
+                    },
+                    "unit": "s"
+                },
+                "overrides": []
+            },
+            "gridPos": { "h": 8, "w": 12, "x": 12, "y": 63 },
+            "id": 301,
+            "options": {
+                "legend": {
+                    "calcs": ["lastNotNull", "mean"],
+                    "displayMode": "table",
+                    "placement": "bottom",
+                    "showLegend": true
+                },
+                "tooltip": { "mode": "multi", "sort": "desc" }
+            },
+            "title": "Operation duration avg by provider / model",
+            "type": "timeseries",
+            "targets": [
+                {
+                    "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                    "expr": "sum by (gen_ai_provider_name, gen_ai_request_model) (gen_ai_client_operation_duration_seconds_sum) / sum by (gen_ai_provider_name, gen_ai_request_model) (gen_ai_client_operation_duration_seconds_count)",
+                    "legendFormat": "{{gen_ai_provider_name}} / {{gen_ai_request_model}}",
+                    "refId": "A"
+                }
+            ]
+        },
+
+        {
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "thresholds" },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            { "color": "green", "value": null },
+                            { "color": "orange", "value": 5 },
+                            { "color": "red", "value": 20 }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": { "h": 5, "w": 6, "x": 0, "y": 71 },
+            "id": 302,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+                "textMode": "auto"
+            },
+            "title": "Active Gen AI requests",
+            "type": "stat",
+            "targets": [
+                {
+                    "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                    "expr": "sum(gen_ai_client_active_requests)",
+                    "legendFormat": "active",
+                    "refId": "A"
+                }
+            ]
+        },
+
+        {
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "thresholds" },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            { "color": "green", "value": null },
+                            { "color": "orange", "value": 0.3 },
+                            { "color": "red", "value": 0.6 }
+                        ]
+                    },
+                    "unit": "percentunit",
+                    "min": 0,
+                    "max": 1
+                },
+                "overrides": []
+            },
+            "gridPos": { "h": 5, "w": 6, "x": 6, "y": 71 },
+            "id": 303,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+                "textMode": "auto"
+            },
+            "title": "Cache hit ratio (Anthropic)",
+            "type": "stat",
+            "targets": [
+                {
+                    "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                    "expr": "avg(gen_ai_client_cache_hit_ratio{gen_ai_provider_name=\"anthropic\"})",
+                    "legendFormat": "cache hit ratio",
+                    "refId": "A"
+                }
+            ]
+        },
+
+        {
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "thresholds" },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            { "color": "green", "value": null },
+                            { "color": "orange", "value": 10 },
+                            { "color": "red", "value": 50 }
+                        ]
+                    },
+                    "unit": "currencyUSD"
+                },
+                "overrides": []
+            },
+            "gridPos": { "h": 5, "w": 6, "x": 12, "y": 71 },
+            "id": 304,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+                "textMode": "auto"
+            },
+            "title": "Estimated cost (USD)",
+            "type": "stat",
+            "targets": [
+                {
+                    "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                    "expr": "sum(gen_ai_client_cost_estimate_usd_total)",
+                    "legendFormat": "total cost",
+                    "refId": "A"
+                }
+            ]
+        },
+
+        {
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "thresholds" },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            { "color": "green", "value": null },
+                            { "color": "orange", "value": 5 },
+                            { "color": "red", "value": 20 }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": { "h": 5, "w": 6, "x": 18, "y": 71 },
+            "id": 305,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "area",
+                "justifyMode": "center",
+                "orientation": "auto",
+                "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+                "textMode": "auto"
+            },
+            "title": "Total errors",
+            "type": "stat",
+            "targets": [
+                {
+                    "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                    "expr": "sum(gen_ai_client_operation_errors_total)",
+                    "legendFormat": "errors",
+                    "refId": "A"
+                }
+            ]
+        },
+
+        {
+            "datasource": { "type": "prometheus", "uid": "${datasource}" },
+            "fieldConfig": {
+                "defaults": {
+                    "color": { "mode": "thresholds" },
+                    "custom": {
+                        "align": "auto",
+                        "cellOptions": { "type": "auto" },
+                        "filterable": true,
+                        "inspect": false
+                    },
+                    "mappings": [],
+                    "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
+                },
+                "overrides": [
+                    {
+                        "matcher": { "id": "byName", "options": "Value" },
+                        "properties": [{ "id": "displayName", "value": "errors" }]
+                    }
+                ]
+            },
+            "gridPos": { "h": 8, "w": 24, "x": 0, "y": 76 },
+            "id": 306,
+            "options": {
+                "cellHeight": "sm",
+                "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+                "showHeader": true,
+                "sortBy": [{ "desc": true, "displayName": "errors" }]
+            },
+            "title": "Gen AI errors by provider / model / type",
+            "type": "table",
+            "targets": [
+                {
+                    "datasource": { "type": "prometheus", "uid": "${datasource}" },
+                    "expr": "sum by (gen_ai_provider_name, gen_ai_request_model, gen_ai_operation_name, error_type) (gen_ai_client_operation_errors_total)",
+                    "format": "table",
+                    "instant": true,
+                    "legendFormat": "",
+                    "refId": "A"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "organize",
+                    "options": {
+                        "excludeByName": { "__name__": true, "Time": true },
+                        "renameByName": {
+                            "gen_ai_provider_name": "Provider",
+                            "gen_ai_request_model": "Model",
+                            "gen_ai_operation_name": "Operation",
+                            "error_type": "Error Type",
+                            "Value": "errors"
+                        }
+                    }
+                }
+            ]
         }
     ],
 
     "refresh": "15s",
     "schemaVersion": 39,
-    "tags": ["alertstack", "pingpong", "envoy", "prometheus"],
+    "tags": ["alertstack", "pingpong", "envoy", "prometheus", "genai"],
     "templating": {
         "list": [
             {
@@ -1088,7 +1396,7 @@
             {
                 "current": { "selected": true, "text": "All", "value": "$__all" },
                 "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                "definition": "label_values(envoy_cluster_upstream_rq_total, cluster)",
+                "definition": "label_values(envoy_cluster_upstream_rq_total, cluster_name)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Cluster",
@@ -1096,7 +1404,7 @@
                 "name": "cluster",
                 "options": [],
                 "query": {
-                    "query": "label_values(envoy_cluster_upstream_rq_total, cluster)",
+                    "query": "label_values(envoy_cluster_upstream_rq_total, cluster_name)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,
@@ -1107,7 +1415,7 @@
             {
                 "current": { "selected": true, "text": "All", "value": "$__all" },
                 "datasource": { "type": "prometheus", "uid": "${datasource}" },
-                "definition": "label_values(envoy_cluster_upstream_rq_total{cluster=~\"$cluster\"}, instance)",
+                "definition": "label_values(envoy_cluster_upstream_rq_total{cluster_name=~\"$cluster\"}, instance)",
                 "hide": 0,
                 "includeAll": true,
                 "label": "Instance",
@@ -1115,7 +1423,7 @@
                 "name": "instance",
                 "options": [],
                 "query": {
-                    "query": "label_values(envoy_cluster_upstream_rq_total{cluster=~\"$cluster\"}, instance)",
+                    "query": "label_values(envoy_cluster_upstream_rq_total{cluster_name=~\"$cluster\"}, instance)",
                     "refId": "StandardVariableQuery"
                 },
                 "refresh": 2,

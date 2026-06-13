@@ -260,13 +260,121 @@ func TestRequestIsAllowed_RejectsInvalidContentType(t *testing.T) {
 	ts := newTestServer(t)
 	defer ts.Close()
 
-	resp, err := http.Post(ts.URL+"/create", "text/plain", strings.NewReader("data"))
+	resp, err := http.Post(ts.URL+"/create", "application/xml", strings.NewReader("data"))
 	if err != nil {
 		t.Fatal(err)
 	}
 	resp.Body.Close()
 	if resp.StatusCode != http.StatusUnsupportedMediaType {
 		t.Errorf("expected 415, got %d", resp.StatusCode)
+	}
+}
+
+func TestCreateHandler_PromTextPlain(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	metric := "test_plain_create{job=\"ci\",env=\"test\"} 10\n"
+	resp, err := http.Post(ts.URL+"/create", "text/plain", strings.NewReader(metric))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 200, got %d: %s", resp.StatusCode, b)
+	}
+	b, _ := io.ReadAll(resp.Body)
+	if !strings.Contains(string(b), "created metric") {
+		t.Errorf("expected 'created metric' in response, got: %s", b)
+	}
+}
+
+func TestUpdateHandler_PromTextPlain(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	metric := "test_plain_update{job=\"ci\",env=\"test\"} 5\n"
+
+	// create first
+	resp, err := http.Post(ts.URL+"/create", "text/plain", strings.NewReader(metric))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("create failed with %d", resp.StatusCode)
+	}
+
+	// update via text/plain — should add delta and return the metric line
+	resp, err = http.Post(ts.URL+"/update", "text/plain", strings.NewReader(metric))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 200, got %d: %s", resp.StatusCode, b)
+	}
+	b, _ := io.ReadAll(resp.Body)
+	if !strings.Contains(string(b), "test_plain_update") {
+		t.Errorf("expected metric name in update response, got: %s", b)
+	}
+}
+
+func TestUpdateHandler_DeltaValue(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	labels := map[string]string{"job": "ci", "env": "delta-test"}
+
+	// create with value 10
+	resp, err := http.Post(ts.URL+"/create", "application/json", jsonMetricBody(t, "delta_test_metric", labels, 10))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		t.Fatalf("create failed with %d", resp.StatusCode)
+	}
+
+	// update with delta 25 — counter should now be 35
+	resp, err = http.Post(ts.URL+"/update", "application/json", jsonMetricBody(t, "delta_test_metric", labels, 25))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		t.Fatalf("expected 200, got %d: %s", resp.StatusCode, b)
+	}
+	b, _ := io.ReadAll(resp.Body)
+	if !strings.Contains(string(b), "35") {
+		t.Errorf("expected counter value 35 (10+25) in response, got: %s", b)
+	}
+}
+
+func TestUpdateHandler_ZeroDeltaFallsBackToOne(t *testing.T) {
+	ts := newTestServer(t)
+	defer ts.Close()
+
+	labels := map[string]string{"job": "ci", "env": "zero-test"}
+
+	resp, err := http.Post(ts.URL+"/create", "application/json", jsonMetricBody(t, "zero_delta_metric", labels, 5))
+	if err != nil {
+		t.Fatal(err)
+	}
+	resp.Body.Close()
+
+	// update with value 0 — should fall back to delta=1, giving total 6
+	resp, err = http.Post(ts.URL+"/update", "application/json", jsonMetricBody(t, "zero_delta_metric", labels, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	b, _ := io.ReadAll(resp.Body)
+	if !strings.Contains(string(b), "6") {
+		t.Errorf("expected counter value 6 (5+1 fallback) in response, got: %s", b)
 	}
 }
 

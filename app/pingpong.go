@@ -276,14 +276,15 @@ func (s *Server) createHandler(w http.ResponseWriter, r *http.Request) {
 	var decodedMetricInfo MetricsInfo
 	var jsonText []byte
 
-	if contentType == "application/x-www-form-urlencoded" {
+	switch contentType {
+	case "application/x-www-form-urlencoded", "text/plain":
 		parsedMetrics, jsonData := parseInputToMetrics(io.NopCloser(bytes.NewBuffer(body)))
 		if parsedMetrics == nil {
 			http.Error(w, "Error parsing metrics", http.StatusBadRequest)
 			return
 		}
 		jsonText = jsonData
-	} else {
+	default:
 		jsonText = body
 	}
 
@@ -322,14 +323,15 @@ func (s *Server) updateHandler(w http.ResponseWriter, r *http.Request) {
 	var decodedMetricInfo MetricsInfo
 	var jsonText []byte
 
-	if contentType == "application/x-www-form-urlencoded" {
+	switch contentType {
+	case "application/x-www-form-urlencoded", "text/plain":
 		parsedMetrics, jsonData := parseInputToMetrics(io.NopCloser(bytes.NewBuffer(body)))
 		if parsedMetrics == nil {
 			http.Error(w, "Error parsing metrics", http.StatusBadRequest)
 			return
 		}
 		jsonText = jsonData
-	} else {
+	default:
 		jsonText = body
 	}
 
@@ -551,7 +553,7 @@ func (s *Server) requestIsAllowed(w http.ResponseWriter, r *http.Request) bool {
 	}
 
 	contentType, _ := header.ParseValueAndParams(r.Header, "Content-Type")
-	allowedTypes := []string{"application/x-www-form-urlencoded", "application/json"}
+	allowedTypes := []string{"application/x-www-form-urlencoded", "application/json", "text/plain"}
 
 	if !contains(allowedTypes, contentType) {
 		http.Error(w, "Invalid Content-Type", http.StatusUnsupportedMediaType)
@@ -633,7 +635,17 @@ func (s *Server) updateMetric(f *MetricInfo) MetricLinesInfo {
 		return nil
 	}
 
+	//b, _ := json.MarshalIndent(metric, "", "  ")
+	b, _ := json.Marshal(metric.meta)
+	logger.Printf("updateMetric() %s meta=%s obj=%p", f.Name, b, metric.obj)
+
 	for _, item := range f.Metrics {
+		delta, err := strconv.ParseFloat(item.Value, 64)
+		if err != nil || delta <= 0 {
+			delta = 1
+		}
+
+
 		paddedLabels := padLabels(item.Labels, metric.meta.Labels)
 		counter, err := metric.obj.GetMetricWith(paddedLabels)
 		if err != nil {
@@ -641,10 +653,10 @@ func (s *Server) updateMetric(f *MetricInfo) MetricLinesInfo {
 			continue
 		}
 
-		counter.Inc()
+		counter.Add(delta)
 
 		value := getMetricValue(counter)
-
+		logger.Printf("updateMetric() %s before: %.0f delta: %.0f after: %.0f", f.Name, value-delta, delta, value)
 		metricLine := &MetricLineInfo{
 			Name:       f.Name,
 			MetricExpo: createMetricLine(f.Name, paddedLabels, fmt.Sprintf("%.0f", value)),

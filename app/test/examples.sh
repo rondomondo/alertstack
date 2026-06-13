@@ -34,6 +34,7 @@ send_metric() {
             --data-binary @- "${endpoint}"
     else
         echo "$data" | curl $CURL_COMMON_OPTS \
+            -H 'Content-Type: text/plain' \
             --data-binary @- "${endpoint}"
     fi
 }
@@ -69,9 +70,9 @@ read -r -d '' METRICLINE <<-EOM || true
 envoy_cluster_upstream_rq_total{cluster_name="frontend",\
 envoy_response_code="503",envoy_response_code_class="5xx",\
 job="envoy",severity="critical",extra_slack_recipient_god="#alert-receiver",\
-pd_group="sre",instance="prx1.ams",cluster="eu-marley",deployment="marley",\
-network_region="EMEA",edge_loc="ams",region="eu-central-1-mgmt",servergroup="proxy",\
-frw_name="frw1.ams",alertstack_host="${ALERTSTACK_HOST}"} 6
+pd_group="sre",instance="alertstack1.ams",cluster="eu-marley",deployment="marley",\
+network_region="EMEA",edge_loc="ams",region="eu-central-1",servergroup="proxy",\
+pop_name="alertstack1.ams",alertstack_host="${ALERTSTACK_HOST}"} 6
 EOM
 
 logfg "Validating test metric format..."
@@ -119,8 +120,17 @@ curl $CURL_COMMON_OPTS "${ALERTSTACK_HTTPS}/metrics" | \
     prom2json | \
     jq ".[].name"
 
-logfg "Testing metric update..."
+logfg "Testing metric update (inline metric, delta +1)..."
 send_metric "${ALERTSTACK_HTTPS}/update" "$METRICLINE"
+
+logfg "Updating prom format test files (adds prom file values as deltas)..."
+for test_file in "${SCRIPT_DIR}"/*.prom; do
+    [[ -f "$test_file" ]] || continue
+    logfg "  Updating metrics from ${test_file##*/}..."
+    send_metric "${ALERTSTACK_HTTPS}/update" \
+        "$(sed "s/alertstack_host=\"alertstack\.org\"/alertstack_host=\"${ALERTSTACK_HOST}\"/g" "$test_file")" \
+        "text"
+done
 
 logfg "Testing notification enqueue (v2/enqueue)..."
 curl $CURL_COMMON_OPTS "${ALERTSTACK_HTTPS}/metrics" | \

@@ -1,0 +1,115 @@
+groups:
+  - name: gen_ai_error_rate_high
+    rules:
+      - alert: gen_ai_error_rate_high
+        expr: |
+          sum by (gen_ai_provider_name, gen_ai_request_model, instance, cluster, alertstack_host)
+            (rate(gen_ai_client_operation_errors_total[5m])) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          extra_slack_recipient_god: "#alert-receiver"
+          pd_group: sre
+        annotations:
+          summary: "High Gen AI error rate for {{$labels.gen_ai_provider_name}} / {{$labels.gen_ai_request_model}}"
+          description: "Provider {{$labels.gen_ai_provider_name}} model {{$labels.gen_ai_request_model}} on {{$labels.cluster}} is erroring at {{$value | humanize}} errors/s"
+          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster}}"
+          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
+          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/gen-ai-error-rate"
+
+  - name: gen_ai_operation_latency_high
+    rules:
+      - alert: gen_ai_operation_latency_high
+        expr: |
+          sum by (gen_ai_provider_name, gen_ai_request_model, instance, cluster, alertstack_host)
+            (rate(gen_ai_client_operation_duration_seconds_sum[5m]))
+          /
+          sum by (gen_ai_provider_name, gen_ai_request_model, instance, cluster, alertstack_host)
+            (rate(gen_ai_client_operation_duration_seconds_count[5m])) > 2
+        for: 5m
+        labels:
+          severity: warning
+          extra_slack_recipient_god: "#alert-receiver"
+          pd_group: sre
+        annotations:
+          summary: "Gen AI operation latency elevated for {{$labels.gen_ai_provider_name}} / {{$labels.gen_ai_request_model}}"
+          description: "Provider {{$labels.gen_ai_provider_name}} model {{$labels.gen_ai_request_model}} on {{$labels.cluster}} has avg operation latency of {{$value | humanizeDuration}}"
+          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster}}"
+          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
+          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/gen-ai-latency"
+
+  - name: gen_ai_active_requests_high
+    rules:
+      - alert: gen_ai_active_requests_high
+        expr: |
+          sum by (gen_ai_provider_name, instance, cluster, alertstack_host)
+            (gen_ai_client_active_requests) > 20
+        for: 5m
+        labels:
+          severity: warning
+          extra_slack_recipient_god: "#alert-receiver"
+          pd_group: sre
+        annotations:
+          summary: "Gen AI active request count elevated on {{$labels.cluster}}"
+          description: "Provider {{$labels.gen_ai_provider_name}} on {{$labels.cluster}} has {{$value}} in-flight requests — possible throughput bottleneck"
+          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster}}"
+          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
+          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/gen-ai-active-requests"
+
+  - name: gen_ai_cache_hit_ratio_low
+    rules:
+      - alert: gen_ai_cache_hit_ratio_low
+        expr: |
+          gen_ai_client_cache_hit_ratio{gen_ai_provider_name="anthropic"} < 0.2
+        for: 10m
+        labels:
+          severity: warning
+          extra_slack_recipient_god: "#alert-receiver"
+        annotations:
+          summary: "Gen AI prompt cache hit ratio low for {{$labels.gen_ai_request_model}} on {{$labels.cluster}}"
+          description: "Cache hit ratio for {{$labels.gen_ai_provider_name}} {{$labels.gen_ai_request_model}} is {{$value | humanizePercentage}} — below 20%, costs will be higher than expected"
+          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster}}"
+          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
+          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/gen-ai-cache-hit-ratio"
+
+  - name: gen_ai_cost_spike
+    rules:
+      - alert: gen_ai_cost_spike
+        expr: |
+          sum by (gen_ai_provider_name, gen_ai_request_model, instance, cluster, alertstack_host)
+            (rate(gen_ai_client_cost_estimate_usd_total[10m])) * 3600 > 5
+        for: 10m
+        labels:
+          severity: critical
+          extra_slack_recipient_god: "#alert-receiver"
+          pd_group: sre
+          sn_group: SRE - NOC
+        annotations:
+          summary: "Gen AI cost rate spike for {{$labels.gen_ai_provider_name}} / {{$labels.gen_ai_request_model}}"
+          description: "Provider {{$labels.gen_ai_provider_name}} model {{$labels.gen_ai_request_model}} on {{$labels.cluster}} is projecting ${{$value | humanize}}/hr — exceeds $5/hr threshold"
+          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster}}"
+          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
+          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/gen-ai-cost-spike"
+
+  - name: gen_ai_retry_rate_high
+    rules:
+      - alert: gen_ai_retry_rate_high
+        expr: |
+          sum by (gen_ai_provider_name, gen_ai_request_model, error_type, instance, cluster, alertstack_host)
+            (rate(gen_ai_client_retry_count_total[5m])) > 0.2
+        for: 5m
+        labels:
+          severity: warning
+          extra_slack_recipient_god: "#alert-receiver"
+        annotations:
+          summary: "Gen AI retry rate elevated for {{$labels.gen_ai_provider_name}} / {{$labels.gen_ai_request_model}}"
+          description: "Provider {{$labels.gen_ai_provider_name}} model {{$labels.gen_ai_request_model}} on {{$labels.cluster}} retrying at {{$value | humanize}}/s (reason: {{$labels.error_type}})"
+          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster}}"
+          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
+          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
+          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/gen-ai-retries"
