@@ -2,7 +2,7 @@ groups:
   - name: envoy_cluster_errors
     rules:
       - alert: envoy_cluster_errors
-        expr: envoy_cluster_upstream_rq_total{envoy_response_code_class="5xx"} == 6
+        expr: envoy_cluster_upstream_rq_total{envoy_response_code_class="5xx"} == 15
         for: 30s
         labels:
           severity: critical
@@ -10,12 +10,12 @@ groups:
           pd_group: sre
           sn_group: who cares
         annotations:
-          summary: "Envoy upstream cluster 5xx spike on {{$labels.cluster_name}}"
-          description: "Cluster {{$labels.cluster_name}} recorded {{$value}} 5xx responses (code {{$labels.envoy_response_code}})"
-          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster_name}}"
-          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
-          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
-          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/envoy-cluster-errors"
+          summary: "Envoy upstream cluster 5xx spike on {{$labels.cluster_name}} [{{$labels.instance}}]"
+          description: "Cluster {{$labels.cluster_name}} [{{$labels.instance}}] recorded {{$value}} 5xx responses (code {{$labels.envoy_response_code}})"
+          logs_url: "https://alertstack.dev:443/logs?cluster={{$labels.cluster_name}}"
+          grafana_url: "https://alertstack.dev:443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster_name}}"
+          dashboard_url: "https://alertstack.dev:443/grafana/d/alertstack-main"
+          runbook_base: "https://alertstack.dev:443/runbooks/envoy-cluster-errors"
   - name: envoy_upstream_cx_high
     rules:
       - alert: envoy_upstream_cx_high
@@ -26,16 +26,16 @@ groups:
           extra_slack_recipient_god: "#alert-receiver"
           pd_group: sre
         annotations:
-          summary: "Envoy upstream connection count elevated on {{$labels.cluster_name}}"
-          description: "Cluster {{$labels.cluster_name}} has {{$value}} active upstream connections, exceeding the warning threshold"
-          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster_name}}"
-          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
-          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
-          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/envoy-upstream-connections"
+          summary: "Envoy upstream connection count elevated on {{$labels.cluster_name}} [{{$labels.instance}}]"
+          description: "Cluster {{$labels.cluster_name}} [{{$labels.instance}}] has {{$value}} active upstream connections, exceeding the warning threshold"
+          logs_url: "https://alertstack.dev:443/logs?cluster={{$labels.cluster_name}}"
+          grafana_url: "https://alertstack.dev:443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster_name}}"
+          dashboard_url: "https://alertstack.dev:443/grafana/d/alertstack-main"
+          runbook_base: "https://alertstack.dev:443/runbooks/envoy-upstream-connections"
   - name: envoy_downstream_5xx_spike
     rules:
       - alert: envoy_downstream_5xx_spike
-        expr: envoy_http_downstream_rq_xx{envoy_response_code_class="5"} > 5
+        expr: envoy_http_downstream_rq_xx{envoy_response_code_class="5"} > 20
         for: 30s
         labels:
           severity: critical
@@ -43,12 +43,12 @@ groups:
           pd_group: sre
           sn_group: SRE - NOC
         annotations:
-          summary: "Envoy downstream 5xx spike on {{$labels.envoy_http_conn_manager_prefix}}"
-          description: "Listener {{$labels.envoy_http_conn_manager_prefix}} recorded {{$value}} 5xx responses from downstream clients"
-          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?listener={{$labels.envoy_http_conn_manager_prefix}}"
-          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
-          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
-          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/envoy-downstream-5xx"
+          summary: "Envoy {{$labels.cluster_name}} downstream 5xx spike on {{$labels.envoy_http_conn_manager_prefix}}"
+          description: "Listener {{$labels.cluster_name}} {{$labels.envoy_http_conn_manager_prefix}} recorded {{$value}} 5xx responses from downstream clients"
+          logs_url: "https://alertstack.dev:443/logs?listener={{$labels.envoy_http_conn_manager_prefix}}"
+          grafana_url: "https://alertstack.dev:443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster_name}}"
+          dashboard_url: "https://alertstack.dev:443/grafana/d/alertstack-main"
+          runbook_base: "https://alertstack.dev:443/runbooks/envoy-downstream-5xx"
   - name: envoy_upstream_cx_zero
     rules:
       - alert: envoy_upstream_cx_zero
@@ -60,9 +60,9 @@ groups:
           pd_group: envoy-pagerduty-group
           cluster_name: "{{$labels.envoy_cluster_name}}"
         annotations:
-          summary: "Envoy cluster {{$labels.cluster_name}} has no active upstream connections"
-          description: "Cluster {{$labels.cluster_name}} reports zero active upstream connections - the backend may be down or unreachable"
-          logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster_name}}"
-          grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
-          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main#{{$labels.envoy_cluster_name}}"
-          runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/envoy-no-upstream-connections"
+          summary: "Envoy cluster {{$labels.envoy_cluster_name}} [{{$labels.instance}}] has no active upstream connections"
+          description: "Cluster {{$labels.envoy_cluster_name}} [{{$labels.instance}}] reports zero active upstream connections - the backend may be down or unreachable"
+          logs_url: "https://alertstack.dev:443/logs?cluster={{$labels.envoy_cluster_name}}"
+          grafana_url: "https://alertstack.dev:443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.envoy_cluster_name}}"
+          dashboard_url: "https://alertstack.dev:443/grafana/d/alertstack-main#{{$labels.envoy_cluster_name}}"
+          runbook_base: "https://alertstack.dev:443/runbooks/envoy-no-upstream-connections"

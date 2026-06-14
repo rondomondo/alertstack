@@ -94,6 +94,11 @@ seed/**
 testdata/
 testdata/**
 
+# -- Generated Prometheus rule files (rendered from *.yml.tmpl via make prom-render) --
+prometheus/rules.yml
+prometheus/alerts-mesh-team.yml
+prometheus/alerts-genai.yml
+
 # -- Claude -------------------------------------------------------------------
 .claude/.simplify-ignore-cache/
 .claude/sdd-cache/

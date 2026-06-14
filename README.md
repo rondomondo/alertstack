@@ -190,10 +190,13 @@ Below is a realistic example of Alerts sent to PagerDuty and Slack of the same a
 
 <br>
 
-Slack Warning Alert        |  Slack PagerDuty Alert
+Slack Warning Alert        |  Slack Critical Alert
 :-------------------------:|:-------------------------:
-![](assets/slack_warning_page.png) | ![](assets/slack_pager_page.png)
-![](assets/slack-critical-buttons-1.png) | ![](assets/slack-resolve-buttons-1.png)
+![](assets/envoy_upstream_cx_high_warning_slack.1.png) | ![](assets/envoy_upstream_cx_high_critical_slack.1.png)
+
+PagerDuty Native Alert        |  
+:-------------------------:|
+![](assets/envoy_cx_active_critical_pagerduty.1.png) | 
 
 <br>
 

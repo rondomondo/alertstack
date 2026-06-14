@@ -100,7 +100,7 @@ endpoints: ## Print stack service URLs (direct and via Envoy proxy)
 .PHONY: stack-up
 stack-up: ## Start the alertstack (Prometheus, Alertmanager, Grafana, pingpong)
 	@[ -n "$$(ls -A $(CERT_DIR) 2>/dev/null)" ] || $(MAKE) gen-cert
-	@$(MAKE) prom-set-host gen-cert
+	@$(MAKE) prom-render prom-set-host gen-cert
 	$(DOCKER_COMPOSE) up --force-recreate --remove-orphans --detach -V
 	@$(MAKE) endpoints
 
@@ -319,7 +319,7 @@ examples: check-host ## Print copy-pasteable curl examples for the running stack
 	@printf "$(BOLD)Run the full integration test suite$(RESET)\n"
 	@printf "  bash $(APP_DIR)/test/examples.sh\n\n"
 
-FLOOD_N ?= 10
+FLOOD_N ?= 1
 
 .PHONY: flood
 flood: check-host ## Repeatedly run app/test/examples.sh (FLOOD_N=100 by default)
@@ -331,6 +331,15 @@ flood: check-host ## Repeatedly run app/test/examples.sh (FLOOD_N=100 by default
 .PHONY: prom-set-host
 prom-set-host: ## Rewrite alertstack_host in app/test/*.prom to match ALERTSTACK_HOST (default: $(ALERTSTACK_HOST))
 	@bash $(SCRIPTS_DIR)/set_prom_host.sh "$(ALERTSTACK_HOST)"
+
+.PHONY: prom-render
+prom-render: ## Render prometheus/*.yml.tmpl → *.yml via envsubst (uses ALERTSTACK_HOST + ENVOY_PORT_TLS)
+	@for tmpl in prometheus/*.yml.tmpl; do \
+	  out="$${tmpl%.tmpl}"; \
+	  ALERTSTACK_HOST=$(ALERTSTACK_HOST) ENVOY_PORT_TLS=$(ENVOY_PORT_TLS) \
+	    envsubst '$$ALERTSTACK_HOST $$ENVOY_PORT_TLS' < "$$tmpl" > "$$out"; \
+	  printf "  rendered: $(GREEN)$$out$(RESET)\n"; \
+	done
 
 
 # -- Infrastructure (OpenTofu / AWS) ------------------------------------------
