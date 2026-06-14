@@ -81,6 +81,8 @@ endpoints: ## Print stack service URLs (direct and via Envoy proxy)
 	@printf "  Alertmanager: http://localhost:9093\n"
 	@printf "  Grafana:      http://localhost:3000\n"
 	@printf "  pingpong:     http://localhost:8090\n"
+	@printf "$(GREEN)pingpong endpoints (HTTPS Envoy proxy):$(RESET)\n"
+	@printf "  See help      https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/help\n"
 	@printf "$(GREEN)Stack Envoy (HTTPS via proxy):$(RESET)\n"
 	@printf "  Prometheus:   https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/prometheus\n"
 	@printf "  Alertmanager: https://${ALERTSTACK_HOST}:${ENVOY_PORT_TLS}/alertmanager\n"

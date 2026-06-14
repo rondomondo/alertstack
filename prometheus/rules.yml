@@ -58,10 +58,11 @@ groups:
           severity: critical
           extra_slack_recipient_god: "#alert-receiver"
           pd_group: envoy-pagerduty-group
+          cluster_name: "{{$labels.envoy_cluster_name}}"
         annotations:
           summary: "Envoy cluster {{$labels.cluster_name}} has no active upstream connections"
           description: "Cluster {{$labels.cluster_name}} reports zero active upstream connections - the backend may be down or unreachable"
           logs_url: "https://{{$labels.alertstack_host}}:8443/logs?cluster={{$labels.cluster_name}}"
           grafana_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main/alertstack?orgId=1&from=now-15m&to=now&timezone=browser&var-cluster={{$labels.cluster}}"
-          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main"
+          dashboard_url: "https://{{$labels.alertstack_host}}:8443/grafana/d/alertstack-main#{{$labels.envoy_cluster_name}}"
           runbook_base: "https://{{$labels.alertstack_host}}:8443/runbooks/envoy-no-upstream-connections"

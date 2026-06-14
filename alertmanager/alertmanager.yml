@@ -1,13 +1,16 @@
 templates:
   - "templates/*.tmpl"
 global:
-  resolve_timeout: 1m
+  resolve_timeout: 10s
+
+  slack_api_url: http://pingpong:8090/webhook
+  pagerduty_url: http://pingpong:8090/v2/enqueue
 
   # slack_api_url: $SLACK_API_URL
-  pagerduty_url: "https://events.pagerduty.com/v2/enqueue"
-
+  #pagerduty_url: "https://events.pagerduty.com/v2/enqueue"
   # Use this to send slack receiver POST requests to the TestPlayground Slack workspace.
-  slack_api_url: "https://hooks.slack.com/services/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"
+  #slack_api_url: "https://hooks.slack.com/services/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"
+
 inhibit_rules:
   - source_matchers:
       - alertname = IgnoreMeBigTime
@@ -76,7 +79,7 @@ receivers:
       - send_resolved: true
         client_url: '{{ template "pagerduty.default.clientURL" . }}'
         client: "View this in Alert Manager"
-        routing_key: "ce0b1b79920d450bc04f14577b9d124c"
+        routing_key: "ce0b1b7577c04f9920d450b14b9d124c"
         description: '{{ template "pagerduty.god.title" . }}'
         component: '{{ template "pagerduty.god.component"  (index .Alerts 0) }}'
         severity: "{{ .CommonLabels.severity }}"

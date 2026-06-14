@@ -145,6 +145,7 @@ func NewServer(config *Config) *Server {
 // setupRoutes configures all HTTP routes
 func (s *Server) setupRoutes() {
 	s.mux.HandleFunc("/", s.rootHandler)
+	s.mux.HandleFunc("/help", s.helpHandler)
 	s.mux.HandleFunc("/ping", s.pingHandler)
 	s.mux.HandleFunc("/time", s.timeHandler)
 	s.mux.HandleFunc("/echo", s.echoHandler)
@@ -525,6 +526,33 @@ Use the <code>var-cluster</code> URL parameter to filter to the specific cluster
 <p>Once the upstream recovers, the alert will auto-resolve. Confirm in Grafana that the request rate
 returns to baseline before closing the incident.</p>
 </body></html>`, title, title, slug, slug)
+}
+
+func (s *Server) helpHandler(w http.ResponseWriter, r *http.Request) {
+	host := r.Host
+	scheme := "https"
+	if r.TLS == nil {
+		scheme = "http"
+	}
+	base := fmt.Sprintf("%s://%s", scheme, host)
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+	fmt.Fprintf(w, "pingpong endpoints\n\n")
+	fmt.Fprintf(w, "  %-14s %s/\n", "/", base)
+	fmt.Fprintf(w, "  %-14s %s/ping\n", "/ping", base)
+	fmt.Fprintf(w, "  %-14s %s/time\n", "/time", base)
+	fmt.Fprintf(w, "  %-14s %s/echo\n", "/echo", base)
+	fmt.Fprintf(w, "  %-14s %s/create\n", "/create", base)
+	fmt.Fprintf(w, "  %-14s %s/update\n", "/update", base)
+	fmt.Fprintf(w, "  %-14s %s/metrics\n", "/metrics", base)
+	fmt.Fprintf(w, "  %-14s %s/metrics.d\n", "/metrics.d", base)
+	fmt.Fprintf(w, "  %-14s %s/webhook\n", "/webhook", base)
+	fmt.Fprintf(w, "  %-14s %s/v2/enqueue\n", "/v2/enqueue", base)
+	fmt.Fprintf(w, "  %-14s %s/slack\n", "/slack", base)
+	fmt.Fprintf(w, "  %-14s %s/pagerduty\n", "/pagerduty", base)
+	fmt.Fprintf(w, "  %-14s %s/logs\n", "/logs", base)
+	fmt.Fprintf(w, "  %-14s %s/runbooks/\n", "/runbooks/", base)
+	fmt.Fprintf(w, "  %-14s %s/help\n", "/help", base)
 }
 
 func (s *Server) echoHandler(w http.ResponseWriter, r *http.Request) {

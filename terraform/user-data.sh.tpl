@@ -36,12 +36,14 @@ echo "export PATH=$PATH" >> /home/ubuntu/.bashrc
 echo "export PATH=$PATH" >> /root/.bashrc
 
 
-ALERTSTACK_HOST=alertstack.link
-export ALERTSTACK_HOST
+export ALERTSTACK_HOST=alertstack.link
+export ENVOY_PORT_TLS=10000
 
 echo "export ALERTSTACK_HOST=$ALERTSTACK_HOST" >> /home/ubuntu/.bashrc
+echo "export ENVOY_PORT_TLS=$ENVOY_PORT_TLS" >> /home/ubuntu/.bashrc
 echo "export ALERTSTACK_HOST=$ALERTSTACK_HOST" >> /root/.bashrc
-echo "$(ec2-metadata --public-ipv4 | sed 's/public-ipv4: //') $ALERTSTACK_HOST" >> /etc/hosts
+echo "export ENVOY_PORT_TLS=$ENVOY_PORT_TLS" >> /root/.bashrc
+echo "$(ec2-metadata --public-ipv4 | sed 's/public-ipv4: //') admin.$ALERTSTACK_HOST $ALERTSTACK_HOST" >> /etc/hosts
 
 # Download redeploy script from S3
 aws s3 cp "s3://$DEPLOY_BUCKET/scripts/redeploy.sh" /usr/local/bin/redeploy.sh \

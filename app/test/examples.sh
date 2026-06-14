@@ -60,6 +60,7 @@ logfy "  make stack-up   (from project root)"
 echo
 logfg "Waiting for stack to be ready..."
 for i in $(seq 1 10); do
+    echo "${ALERTSTACK_HTTPS}/time" 
     curl --silent --insecure --max-time 2 "${ALERTSTACK_HTTPS}/time" >/dev/null 2>&1 && break
     printf "  ... waiting (${i}/10)\n"
     sleep 2
